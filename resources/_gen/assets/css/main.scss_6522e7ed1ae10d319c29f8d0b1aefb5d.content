@@ -1,11 +1,11 @@
 @charset "UTF-8";
 :root {
-  --footer-icon: url(../images/taichi.png);
-  --top-icon: url(../images/taichi.png);
+  --footer-icon: url(false);
+  --top-icon: url(../images/test.png);
   --sponsor-icon: url(../images/taichi.png);
-  --cursor-default: url(../images/cursor/reimu-cursor-default.png), auto;
-  --cursor-pointer: url(../images/cursor/reimu-cursor-pointer.png), pointer;
-  --cursor-text: url(../images/cursor/reimu-cursor-text.png), text;
+  --cursor-default: auto;
+  --cursor-pointer: pointer;
+  --cursor-text: text;
 }
 
 :root {
@@ -329,6 +329,14 @@ body [data-aos="zoom-in"] {
 
 .icon-github:before {
   content: "\e619";
+}
+
+.icon-bilibili:before {
+  content: "\e603";
+}
+
+.icon-steam:before {
+  content: "\e624";
 }
 
 .sidebar-toc-btn:before {
@@ -3096,6 +3104,18 @@ mjx-container::-webkit-scrollbar {
   color: #bc88ff;
 }
 
+.icon-bilibili {
+  color: #00a1d6;
+}
+
+.icon-steam {
+  color: #171a21;
+}
+
+[data-theme="dark"] .icon-steam {
+  color: #bc88ff;
+}
+
 .sidebar-menu {
   margin: 20px 0;
   width: 100%;
@@ -3530,24 +3550,8 @@ mjx-container::-webkit-scrollbar {
   }
 }
 
-@supports (-webkit-mask: var(--top-icon) no-repeat center/100%) {
-  .sidebar-top-taichi {
-    background-color: var(--red-1);
-    -webkit-mask: var(--top-icon) no-repeat center/100%;
-  }
-}
-
-@supports (-webkit-mask: var(--top-icon) no-repeat center/100%) {
-  .sidebar-top-taichi {
-    background-color: var(--red-1);
-    mask: var(--top-icon) no-repeat center/100%;
-  }
-}
-
-@supports not ((mask: var(--top-icon) no-repeat center/100%) and (-webkit-mask: var(--top-icon) no-repeat center/100%)) {
-  .sidebar-top-taichi {
-    background: var(--top-icon) no-repeat center/100%;
-  }
+.sidebar-top-taichi {
+  background: var(--top-icon) no-repeat center/100%;
 }
 
 .tagcloud a {
@@ -3658,6 +3662,18 @@ mjx-container::-webkit-scrollbar {
   height: 5px;
   border-radius: 50%;
   opacity: 1;
+}
+
+#live2d-toggle {
+  z-index: 1;
+}
+
+#live2d-plugin {
+  z-index: 98 !important;
+}
+
+#waifu-toggle {
+  z-index: 1;
 }
 
 [data-theme="dark"] ::-webkit-scrollbar, [data-theme="dark"] ::-webkit-scrollbar-track {
