@@ -1,5 +1,5 @@
 baseURL = 'https://example.org/'
-title = 'Tairitsu的wiki站'
+title = 'Tairitsuskの wiki'
 theme = "reimu"
 languageCode = 'en-US'
 [markup.highlight]

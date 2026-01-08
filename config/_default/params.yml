@@ -26,7 +26,7 @@ monthFormat: "2006-01"
 dateFormat: "2006-01-02"
 timeFormat: "2006-01-02 15:04:05"
 
-author: Tairitsu
+author: Tairitsusk
 email: xxx@example.com
 description: "一只雪球"
 subtitle: ""
@@ -611,12 +611,12 @@ service_worker:
 
 # Experimental
 live2d:
-  enable: true
+  enable: false
   position: left # left or right
 
 # Experimental
 live2d_widgets:
-  enable: true
+  enable: false
   position: left # left or right
 
 # https://github.com/CodeByZach/pace

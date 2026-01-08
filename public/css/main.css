@@ -3664,18 +3664,6 @@ mjx-container::-webkit-scrollbar {
   opacity: 1;
 }
 
-#live2d-toggle {
-  z-index: 1;
-}
-
-#live2d-plugin {
-  z-index: 98 !important;
-}
-
-#waifu-toggle {
-  z-index: 1;
-}
-
 [data-theme="dark"] ::-webkit-scrollbar, [data-theme="dark"] ::-webkit-scrollbar-track {
   background-color: #616161;
   border-radius: 10px;

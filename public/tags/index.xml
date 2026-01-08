@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Tags on Tairitsu的wiki站</title>
+    <title>Tags on Tairitsuskの wiki</title>
     <link>http://localhost:1313/tags/</link>
-    <description>Recent content from Tairitsu的wiki站</description>
+    <description>Recent content from Tairitsuskの wiki</description>
     <generator>Hugo</generator>
     <language>en-US</language>
     
-    <managingEditor>xxx@example.com (Tairitsu)</managingEditor>
-    <webMaster>xxx@example.com (Tairitsu)</webMaster>
+    <managingEditor>xxx@example.com (Tairitsusk)</managingEditor>
+    <webMaster>xxx@example.com (Tairitsusk)</webMaster>
     
     <copyright>All articles on this blog are licensed under the BY-NC-SA license agreement unless otherwise stated. Please indicate the source when reprinting!</copyright>
     

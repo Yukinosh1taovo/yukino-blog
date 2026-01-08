@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Tairitsu的wiki站</title>
+    <title>Tairitsuskの wiki</title>
     <link>http://localhost:1313/</link>
-    <description>Recent content from Tairitsu的wiki站</description>
+    <description>Recent content from Tairitsuskの wiki</description>
     <generator>Hugo</generator>
     <language>en-US</language>
     
-    <managingEditor>xxx@example.com (Tairitsu)</managingEditor>
-    <webMaster>xxx@example.com (Tairitsu)</webMaster>
+    <managingEditor>xxx@example.com (Tairitsusk)</managingEditor>
+    <webMaster>xxx@example.com (Tairitsusk)</webMaster>
     
     <copyright>All articles on this blog are licensed under the BY-NC-SA license agreement unless otherwise stated. Please indicate the source when reprinting!</copyright>
     
@@ -25,19 +25,20 @@
       <title>Git的使用入门</title>
       <link>http://localhost:1313/post/git/</link>
       <pubDate>Fri, 02 Jan 2026 13:14:30 &#43;0800</pubDate>
-      <author>xxx@example.com (Tairitsu)</author>
+      <author>xxx@example.com (Tairitsusk)</author>
       <guid>http://localhost:1313/post/git/</guid>
       <description>
-        <![CDATA[<h1>Git的使用入门</h1><p>Author: Tairitsu(xxx@example.com)</p>
+        <![CDATA[<h1>Git的使用入门</h1><p>Author: Tairitsusk(xxx@example.com)</p>
         
-          <h1 id="git">
-<a class="header-anchor" href="#git"></a>
-Git
-</h1><h3 id="安装配置">
+          <h1 id="git的入门使用">
+<a class="header-anchor" href="#git%e7%9a%84%e5%85%a5%e9%97%a8%e4%bd%bf%e7%94%a8"></a>
+Git的入门使用
+</h1><p>程序员的入门怎么能少得了git的使用 以下记录了我新手时期git的入门操作</p>
+<h3 id="安装配置">
 <a class="header-anchor" href="#%e5%ae%89%e8%a3%85%e9%85%8d%e7%bd%ae"></a>
 安装配置
 </h3><p>首先安装好git</p>
-<p>安装好后设置好用户名和电子邮箱</p>
+<p>安装好后在终端设置好用户名和电子邮箱</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git config --global user.name &lt;username&gt;
 </span></span><span class="line"><span class="cl">git config --global user.email &lt;email&gt;
 </span></span></code></pre></div><p>查看帮助<code>git help [command]</code></p>
@@ -65,25 +66,7 @@ Git
 git常用命令
 </h3><p>初始化仓库 <code> git init</code></p>
         
-        <hr><p>Published on 2026-01-02 at <a href='http://localhost:1313/'>Tairitsu的wiki站</a>, last modified on 2026-01-02</p>]]>
-      </description>
-      
-    </item>
-    
-    
-
-    <item>
-      <title>Network Design</title>
-      <link>http://localhost:1313/post/network-design/</link>
-      <pubDate>Tue, 30 Dec 2025 22:42:24 &#43;0800</pubDate>
-      <author>xxx@example.com (Tairitsu)</author>
-      <guid>http://localhost:1313/post/network-design/</guid>
-      <description>
-        <![CDATA[<h1>Network Design</h1><p>Author: Tairitsu(xxx@example.com)</p>
-        
-          <p>关于网络渗透测试平台的搭建内容</p>
-        
-        <hr><p>Published on 2025-12-30 at <a href='http://localhost:1313/'>Tairitsu的wiki站</a>, last modified on 2025-12-30</p>]]>
+        <hr><p>Published on 2026-01-02 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-01-02</p>]]>
       </description>
       
     </item>
@@ -93,15 +76,15 @@ git常用命令
     <item>
       <title>Hello World</title>
       <link>http://localhost:1313/post/hello/</link>
-      <pubDate>Wed, 15 Mar 2023 11:00:00 -0700</pubDate>
-      <author>xxx@example.com (Tairitsu)</author>
+      <pubDate>Thu, 01 Jan 2026 11:00:00 -0700</pubDate>
+      <author>xxx@example.com (Tairitsusk)</author>
       <guid>http://localhost:1313/post/hello/</guid>
       <description>
-        <![CDATA[<h1>Hello World</h1><p>Author: Tairitsu(xxx@example.com)</p>
+        <![CDATA[<h1>Hello World</h1><p>Author: Tairitsusk(xxx@example.com)</p>
         
-          <p>hello world</p>
+          <p>Hello World</p>
         
-        <hr><p>Published on 2023-03-15 at <a href='http://localhost:1313/'>Tairitsu的wiki站</a>, last modified on 2023-03-15</p>]]>
+        <hr><p>Published on 2026-01-01 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-01-01</p>]]>
       </description>
       
     </item>

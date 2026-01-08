@@ -5,13 +5,15 @@ title = 'Git的使用入门'
 
 +++
 
-# Git
+# Git的入门使用
+
+程序员的入门怎么能少得了git的使用 以下记录了我新手时期git的入门操作
 
 ### 安装配置
 
 首先安装好git
 
-安装好后设置好用户名和电子邮箱
+安装好后在终端设置好用户名和电子邮箱
 
 ```bash
 git config --global user.name <username>
@@ -22,8 +24,6 @@ git config --global user.email <email>
 
 ---
 
-
-
 然后配置好github 的ssh
 
 > ` $ ssh-keygen -t rsa -C <email>` 
@@ -31,8 +31,6 @@ git config --global user.email <email>
 > 然后将用户文件夹（Linux 为 `~` 文件夹，Windows 为 %USERPROFILE% 文件夹）内的 `ssh` 文件夹下的公钥（`id_rsa.pub`）上传到 GitHub 的“个人设置->SSH keys”中
 
 ---
-
-
 
 ### 从零建库并托管到Github
 
