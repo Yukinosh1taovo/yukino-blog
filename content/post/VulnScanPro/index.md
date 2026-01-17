@@ -13,12 +13,12 @@ title = '毕业设计-网络漏洞扫描与渗透测试平台'
 
 创建springboot项目 选择springboot 3.0.2 + jdk17
 
-![image-20260104105925142](C:\Users\Yukino\AppData\Roaming\Typora\typora-user-images\image-20260104105925142.png)
+![image-20260104105925142](image-20260104105925142.png)
 
 添加如下依赖
 
-![image-20260104105942083](C:\Users\Yukino\AppData\Roaming\Typora\typora-user-images\image-20260104105942083.png)
+![image-20260104105942083](image-20260104105942083.png)
 
 连接好数据库后创建数据库
 
-![image-20260104112204703](C:\Users\Yukino\AppData\Roaming\Typora\typora-user-images\image-20260104112204703.png)
+![image-20260104112204703](image-20260104112204703.png)

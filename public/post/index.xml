@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tairitsuskの wiki</title>
-    <link>http://localhost:1313/</link>
+    <link>http://localhost:1313/post/</link>
     <description>Recent content from Tairitsuskの wiki</description>
     <generator>Hugo</generator>
     <language>en-US</language>
@@ -12,23 +12,41 @@
     
     <copyright>All articles on this blog are licensed under the BY-NC-SA license agreement unless otherwise stated. Please indicate the source when reprinting!</copyright>
     
-    <lastBuildDate>Mon, 05 Jan 2026 23:52:00 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 14 Jan 2026 14:19:15 +0800</lastBuildDate>
     
     
-    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss&#43;xml" />
+    <atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss&#43;xml" />
     
 
     
     
 
     <item>
-      <title>Mysql基础操作</title>
+      <title>Python Numpy</title>
+      <link>http://localhost:1313/post/python-numpy/</link>
+      <pubDate>Wed, 14 Jan 2026 14:19:15 &#43;0800</pubDate>
+      <author>xxx@example.com (Tairitsusk)</author>
+      <guid>http://localhost:1313/post/python-numpy/</guid>
+      <description>
+        <![CDATA[<h1>Python Numpy</h1><p>Author: Tairitsusk(xxx@example.com)</p>
+        
+          
+        
+        <hr><p>Published on 2026-01-14 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-01-14</p>]]>
+      </description>
+      
+    </item>
+    
+    
+
+    <item>
+      <title>Mysql</title>
       <link>http://localhost:1313/post/mysql/</link>
       <pubDate>Mon, 05 Jan 2026 23:52:00 &#43;0800</pubDate>
       <author>xxx@example.com (Tairitsusk)</author>
       <guid>http://localhost:1313/post/mysql/</guid>
       <description>
-        <![CDATA[<h1>Mysql基础操作</h1><p>Author: Tairitsusk(xxx@example.com)</p>
+        <![CDATA[<h1>Mysql</h1><p>Author: Tairitsusk(xxx@example.com)</p>
         
           <h1 id="mysql">
 <a class="header-anchor" href="#mysql"></a>
@@ -63,6 +81,34 @@ DDL(Data Definition Language 数据定义语言)
 </span></span></span></code></pre></div><p>创建表</p>
         
         <hr><p>Published on 2026-01-05 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-01-05</p>]]>
+      </description>
+      
+    </item>
+    
+    
+
+    <item>
+      <title>毕业设计-网络漏洞扫描与渗透测试平台</title>
+      <link>http://localhost:1313/post/vulnscanpro/</link>
+      <pubDate>Sun, 04 Jan 2026 22:42:24 &#43;0800</pubDate>
+      <author>xxx@example.com (Tairitsusk)</author>
+      <guid>http://localhost:1313/post/vulnscanpro/</guid>
+      <description>
+        <![CDATA[<h1>毕业设计-网络漏洞扫描与渗透测试平台</h1><p>Author: Tairitsusk(xxx@example.com)</p>
+        
+          <h1 id="springboot项目创建">
+<a class="header-anchor" href="#springboot%e9%a1%b9%e7%9b%ae%e5%88%9b%e5%bb%ba"></a>
+springboot项目创建
+</h1><p><a href="https://www.spring-doc.cn/projects/spring-boot#overview">springboot中文文档</a></p>
+<p><a href="https://spring.io/guides">spring官方文档</a></p>
+<p>创建springboot项目 选择springboot 3.0.2 + jdk17</p>
+<p><img src="image-20260104105925142.png" alt="image-20260104105925142"></p>
+<p>添加如下依赖</p>
+<p><img src="image-20260104105942083.png" alt="image-20260104105942083"></p>
+<p>连接好数据库后创建数据库</p>
+<p><img src="image-20260104112204703.png" alt="image-20260104112204703"></p>
+        
+        <hr><p>Published on 2026-01-04 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-01-04</p>]]>
       </description>
       
     </item>
