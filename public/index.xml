@@ -81,8 +81,7 @@ DDL(Data Definition Language 数据定义语言)
           <h1 id="git的入门使用">
 <a class="header-anchor" href="#git%e7%9a%84%e5%85%a5%e9%97%a8%e4%bd%bf%e7%94%a8"></a>
 Git的入门使用
-</h1><p>程序员的入门怎么能少得了git的使用 以下记录了我新手时期git的入门操作</p>
-<h3 id="安装配置">
+</h1><h3 id="安装配置">
 <a class="header-anchor" href="#%e5%ae%89%e8%a3%85%e9%85%8d%e7%bd%ae"></a>
 安装配置
 </h3><p>首先安装好git</p>
