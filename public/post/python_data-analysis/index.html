@@ -153,7 +153,11 @@ This article does not have a corresponding language version
         <li><a href="#3-numpy库函数">3. numpy库函数</a></li>
       </ul>
     </li>
-    <li><a href="#pandas">Pandas</a></li>
+    <li><a href="#pandas">Pandas</a>
+      <ul>
+        <li><a href="#1-创建series对象">1. 创建Series对象</a></li>
+      </ul>
+    </li>
     <li><a href="#matplotlib">Matplotlib</a></li>
     <li><a href="#seaborn">Seaborn</a></li>
     <li><a href="#sklearn">Sklearn</a></li>
@@ -345,7 +349,19 @@ Numpy
 </span></span></code></pre></div><h2 id="pandas">
 <a class="header-anchor" href="#pandas"></a>
 Pandas
-</h2><h2 id="matplotlib">
+</h2><p>导包</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</span></span></code></pre></div><h3 id="1-创建series对象">
+<a class="header-anchor" href="#1-%e5%88%9b%e5%bb%baseries%e5%af%b9%e8%b1%a1"></a>
+1. 创建Series对象
+</h3><p>Series也是Pandas中的最基本的数据结构对象，下文中简称s对象；是DataFrame的列对象，series本身也具有索引。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">s1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span> <span class="c1"># 采用默认自增索引</span>
+</span></span><span class="line"><span class="cl"><span class="n">s2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">],</span> <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;e&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">s3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">((</span><span class="mi">11</span><span class="p">,</span><span class="mi">22</span><span class="p">,</span><span class="mi">33</span><span class="p">,</span><span class="mi">44</span><span class="p">))</span> <span class="c1"># 使用元组创建</span>
+</span></span><span class="line"><span class="cl"><span class="n">s4</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span> <span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span> <span class="p">)</span> <span class="c1"># 使用字典创建</span>
+</span></span><span class="line"><span class="cl"><span class="n">s5</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span> <span class="c1"># 使用numpy数组对象创建</span>
+</span></span></code></pre></div><h2 id="matplotlib">
 <a class="header-anchor" href="#matplotlib"></a>
 Matplotlib
 </h2><h2 id="seaborn">
@@ -384,7 +400,7 @@ Sklearn
     aria-label="Article navigation"
     data-aos="fade-up"
   ><div class="article-nav-link-wrap left"><img
-              data-src="https://web-tlias-1023.oss-cn-hangzhou.aliyuncs.com/01805ccd-2650-4cac-ab2b-c4960239437f.jpg"
+              data-src="https://web-tlias-1023.oss-cn-hangzhou.aliyuncs.com/4936d859-a0b6-4b87-adcf-80ddbcf14ca0.jpg"
               data-sizes="auto"
               alt="Mysql基础操作"
               class="lazyload"
@@ -450,7 +466,11 @@ Sklearn
         <li><a href="#3-numpy库函数">3. numpy库函数</a></li>
       </ul>
     </li>
-    <li><a href="#pandas">Pandas</a></li>
+    <li><a href="#pandas">Pandas</a>
+      <ul>
+        <li><a href="#1-创建series对象">1. 创建Series对象</a></li>
+      </ul>
+    </li>
     <li><a href="#matplotlib">Matplotlib</a></li>
     <li><a href="#seaborn">Seaborn</a></li>
     <li><a href="#sklearn">Sklearn</a></li>
