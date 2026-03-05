@@ -152,3 +152,26 @@ s5 = pd.Series(np.arange(5)) # 使用numpy数组对象创建
 
 ## Sklearn
 
+
+
+
+
+
+
+## Anaconda
+
+安装anaconda后
+
+在Anaconda Prompt终端中输入 `conda --version` 提示conda版本号
+
+输入 `conda create -n study_env python=3.10` 创建一个名称为study_env python版本3.10的新的conda虚拟环境
+
+使用新建的环境 `conda activate study_env`
+
+
+
+在pycharm中 **Settings** -> **Tools** -> **Terminal** 将Shell Path一项配置为 
+
+`cmd.exe "/K" C:\Users\Yukino\anaconda3\Scripts\activate.bat C:\Users\Yukino\anaconda3`
+
+可将点开 PyCharm 的 Terminal就是Anaconda Prompt

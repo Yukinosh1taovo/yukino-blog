@@ -54,7 +54,7 @@ title = '毕业设计-网络漏洞扫描与渗透测试平台'
 
 创建springboot项目 
 
-选择springboot 3.0.2 + jdk17
+选择springboot 3.0.2 + jdk17 进行开发
 
 ![image-20260104105925142](image-20260104105925142.webp)
 
@@ -74,11 +74,11 @@ create schema vulnscan_platform
 
 
 
-## 二、 数据库分析创建
+## 二、 数据库分析搭建
 
 根据功能分析预估 设计以下数据库表结构 
 
-![](C:\Files\repos\yukino-blog\content\post\VulnScanPro\image-20260124142637438.webp)
+![image-20260228164920753](C:\Files\repos\yukino-blog\content\post\VulnScanPro\image-202601241426374381.webp)
 
 以下为对每张表的详细设计
 
@@ -265,13 +265,16 @@ CREATE TABLE `reports` (
 
 ```tex
 com.xueqiu.vulnscanpro
-├── controller       # 控制层
+├── controller       # 接口层
 │   ├── api
 │   └── advice
-├── service          # 业务逻辑层
+├── service          # 业务逻辑层（处理任务管理、权限控制）
 │   ├── impl
-├── repository       # 数据访问层（对应Mapper层）
-├── model            # 模型层
+├── mapper           # 数据访问层
+│
+├── engine           # 核心执行层（放置 ScanEngine, NmapParser 等）
+│
+├── model            # 实体与 DTO
 │   ├── entity
 │   ├── dto
 │   │   ├── request
@@ -358,36 +361,77 @@ public class Users {
 
 ### 2. 用户注册登录逻辑实现
 
-基于 **Spring Security + JWT + MyBatis** 技术栈   实现流程图如下(*日后学习flow用代码替代图片*)
+> > > 基于 **Spring Security + JWT + MyBatis** 技术栈   实现流程图如下(~~*日后学习mermaid用代码替代图片*~~)
+> > > 
 
-![image-20260128143553142](C:\Files\repos\yukino-blog\content\post\VulnScanPro\image-20260128143553142.webp)
+```mermaid
+sequenceDiagram
+    participant C as 客户端
+    participant A as AuthController
+    participant S as AuthService
+    participant UDS as UserDetailsService
+    participant M as UserMapper
+    participant DB as 数据库
 
-![image-20260128144057877](C:\Files\repos\yukino-blog\content\post\VulnScanPro\image-20260128144057877.webp)
+    C->>A: 1. POST /api/auth/register
+    A->>S: 2. register(RegisterRequest)
+    S->>M: 3.1 countByUsername()
+    M->>DB: 查询用户名是否存在
+    DB-->>M: 返回结果
+    S->>S: 3.2 密码加密 (BCrypt)
+    S->>M: 3.3 insert(user)
+    M->>DB: 插入新用户
+    DB-->>M: 返回自增ID
+    S-->>A: 注册成功
+    A-->>C: 返回统一响应
 
-
-
-```flow
-    A[“客户端<br>提交登录表单”] --> B[“AuthController.login()”]
-    B --> C[“AuthService.login()”]
-    C --> D[“1. 认证 AuthenticationManager”]
-    D --> E[“CustomUserDetailsService”]
-    E --> F[“UserMapper.selectByUsername()”]
-    F --> G[(“数据库”)]
-    G --> E
-    E --> H[“Spring Security UserDetails”]
-    H --> D
-    D --> I[“认证成功<br>设置SecurityContext”]
-    I --> J[“2. 生成令牌 JwtTokenProvider”]
-    J --> K[“3. 构建响应 LoginResponse”]
-    K --> B
-    B --> L[“返回JSON响应给客户端”]
+    C->>A: 4. POST /api/auth/login
+    A->>S: 5. login(LoginRequest)
+    S->>UDS: 6. loadUserByUsername()
+    UDS->>M: 7. selectByUsername()
+    M->>DB: 查询用户信息
+    DB-->>M: 返回User实体
+    UDS-->>S: 返回UserDetails
+    S->>S: 8. 验证密码
+    S->>S: 9. 生成JWT令牌
+    S-->>A: 返回Token
+    A-->>C: 返回登录成功和Token
 ```
 
 
 
+🚀 **实施步骤建议**
+
+1. **从后往前搭建**：先创建 `User` 实体和 `UserMapper` 及其XML文件，确保基础的数据存取可用。
+2. **实现Service核心**：接着实现 `AuthService` 中的 `register` 和 `login` 方法，可以先写伪代码，逐步填充密码加密、认证等逻辑。
+3. **暴露API接口**：最后实现 `AuthController`，调用Service并处理请求响应。
+4. **集成与测试**：使用Postman或Swagger测试 `/api/auth/register` 和 `/api/auth/login` 接口，确保整个链路畅通。
 
 
-#### 2.1 配置 Spring Security 、JWT 依赖
+
+**安全性增强建议（可选但推荐）**：
+
+- **Token刷新机制**：实现 `/api/auth/refresh` 端点，使用刷新令牌获取新访问令牌。
+- **登录尝试限制**：防止暴力破解，可记录失败次数并临时锁定账户。
+- **密码强度策略**：在注册时校验密码复杂度。
+- **HTTPS**：在生产环境中必须启用。
+
+
+
+```mermaid
+flowchart TD
+    A[前端发送登录请求] --> B{是否存在 Token?}
+    B -- 无 --> C[跳转登录页]
+    B -- 有 --> D[JwtAuthenticationFilter 拦截]
+    D --> E[JwtTokenProvider 校验合法性]
+    E --> F[UserDetailsServiceImpl 加载 CustomUserDetails]
+    F --> G[存入 SecurityContextHolder 信封]
+    G --> H[Controller 成功获取 userId]
+```
+
+
+
+#### 2.1 Spring Security
 
 ---
 
@@ -397,18 +441,6 @@ public class Users {
 
 - **认证（Authentication）**：验证"你是谁"
 - **授权（Authorization）**：验证"你能做什么"
-
-
-
-***JWT(Json Web Token)***:
-
-是一种用于**身份验证和信息传递**的开放标准（RFC 7519）。
-
-**核心特点**：
-
-- 自包含（包含用户信息和权限）
-- 无状态（服务器不需要存储 Session）
-- 跨域友好（适合前后端分离和微服务）
 
 ---
 
@@ -420,198 +452,21 @@ public class Users {
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-
-<!--        jwt依赖     -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>0.11.5</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>0.11.5</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>0.11.5</version>
-            <scope>runtime</scope>
-        </dependency>
 ```
 
 
 
-##### 2.1.1 Jwt
+##### 2.1.1 SecurityConfig
 
-先在application.yml文件中设置jwt的相关参数
-
-```yaml
-jwt:
-	secret: "输入64B长度的字符串作为密钥" 
-	expiration-ms: 86400000 # 24小时（单位：毫秒）
-```
-
-创建JwtTokenProvider工具类 位于utils包中 用于实现Jwt的相关操作
-
-```java
-package com.xueqiu.vulnscanpro.utils;
-
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SecurityException;
-import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.util.Date;
-import java.util.stream.Collectors;
-
-@Slf4j
-@Component
-public class JwtTokenProvider {
-
-    @Value ("${app.jwt.secret}")
-    private String jwtSecret;
-
-    @Value("${app.jwt.expiration-ms}")
-    private long jwtExpirationInMs;
-
-    private Key key;
-
-    @PostConstruct
-    public void init(){
-
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
-        log.info("原始密钥字节长度: {} 位 ({}字节)", keyBytes.length * 8, keyBytes.length);
-        if (keyBytes.length < 64) { // HS512需要至少64字节
-            log.error("密钥长度不足！需要至少64字节(512位)，当前仅{}字节。", keyBytes.length);
-            // 方案1: 抛异常让应用启动失败
-            throw new IllegalArgumentException("JWT密钥长度不足，请使用至少64字节的Base64密钥");
-        }
-
-
-
-
-        // 将密钥字符串转换为Key对象
-        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-
-        log.info("JWT密钥初始化成功，密钥长度: {} 位", keyBytes.length * 8);
-    }
-
-
-    /**
-     * 根据认证信息生成JWT令牌
-     */
-    public String generateToken(Authentication authentication) {
-
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
-
-        // 将权限列表转换为逗号分隔的字符串
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
-        return Jwts.builder()
-                .setSubject(userDetails.getUsername())
-                .claim("authorities",authorities) // 自定义声明：权限
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .compact();
-    }
-
-    /**
-     * 从 Token 中提取用户名
-     */
-    public String getUsernameFromToken(String token) {
-
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        return claims.getSubject();
-    }
-
-    /**
-     * 验证JWT令牌是否有效
-     */
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (SecurityException | MalformedJwtException e) {
-            log.error("无效的JWT签名", e);
-        } catch (ExpiredJwtException e) {
-            log.error("JWT令牌已过期", e);
-        } catch (UnsupportedJwtException e) {
-            log.error("不支持的JWT令牌", e);
-        } catch (IllegalArgumentException e) {
-            log.error("JWT claims字符串为空", e);
-        } catch (Exception e) {
-            log.error("验证JWT令牌时发生错误", e);
-        }
-        return false;
-    }
-
-    public long getJwtExpirationInMs(){
-        return jwtExpirationInMs;
-    }
-
-}
-
-```
-
-##### 2.1.2 Spring Security
-
-创建SecurityConfig类 位于config包中 用于对Spring Security进行配置
+创建**SecurityConfig**类 位于config包中 *用于对Spring Security进行配置*
 
 ```java
 package com.xueqiu.vulnscanpro.config;
 
-import com.xueqiu.vulnscanpro.filter.JwtAuthenticationFilter;
-import com.xueqiu.vulnscanpro.service.impl.UserDetailsServiceImpl;
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-
 @Configuration
 @EnableWebSecurity // 该注解启用 Spring Security 的 web 安全功能。
 @EnableMethodSecurity
-@RequiredArgsConstructor
+@RequiredArgsConstructor // 配合private final 依赖注入
 public class SecurityConfig {
     
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -669,7 +524,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-
     /**
      *
      * 密码加密器配置
@@ -690,12 +544,402 @@ public class SecurityConfig {
     }
 
 
+}
+
+```
+
+
+
+##### 2.1.2 UserDetailsServiceImpl
+
+创建 **UserDetailsServiceImpl** 类 实现 *Spring Security框架 的 UserDetailsService 接口*  重写 **loadUserByUsername** 方法
+
+---
+
+***UserDetailsServiceImpl** 的具体作用:*
+
+
+
+Spring Security 是一个通用的框架，它并不知道你的数据库长什么样（是叫 users 表还是 account 表？主键是 id 还是 uid ？）。
+
+它的职责是：
+
+- **桥梁作用**：把存储在数据库里的实体类（你的 `User.java`）转换成框架能识别的“标准身份证明”（`UserDetails` 接口的实现类）。
+- **解耦**：让 Spring Security 专注于“怎么校验权限”和“怎么比对密码”，而把“去哪里找用户”的任务交给你来实现。
+
+---
+
+***loadUserByUsername** 在什么时候调用？*
+
+
+
+在你的 JWT 架构中，这个方法通常在**两个关键时刻**被触发：
+
+A. 登录阶段（签发 Token 时）
+
+当你调用 `authenticationManager.authenticate(token)` 时：
+
+1. Spring Security 会自动找到你定义的 `UserDetailsServiceImpl`。
+2. 调用 `loadUserByUsername` 去数据库拿用户资料（包括加密后的密码）。
+3. 框架拿到资料后，在后台自动比对你输入的密码和数据库里的密码是否匹配。
+
+B. 鉴权阶段（解析 Token 时）
+
+在你的 `JwtAuthenticationFilter` 过滤器里：
+
+1. 保安（Filter）拦截到请求，解析出 Token 里的用户名。
+2. **手动调用**：你代码里写了 `userDetailsService.loadUserByUsername(username)`。
+3. **目的**：为了确保这个用户依然存在、账号没有被禁用，并且获取最新的权限信息（以及我们最重要的 **User ID**），然后把这些信息塞进“信封”（SecurityContext）。
+
+---
+
+
+
+```java
+package com.xueqiu.vulnscanpro.service.impl;
+
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class UserDetailsServiceImpl implements UserDetailsService {
+
+    private final UserMapper userMapper;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        User user = userMapper.selectByUsername(username);
+
+        log.info("从数据库查出的用户实体: id={}, username={}", user.getId(), user.getUsername());
+
+        if (user == null) {
+            throw new UsernameNotFoundException("用户不存在: " + username);
+        }
+
+        // 转换为 自定义的CustomUserDetails
+        return new CustomUserDetails(
+                user.getId(),
+                user.getUsername(),
+                user.getPasswordHash(),
+                user.getIsActive(),
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
+        );
+    }
+}
+
+```
+
+
+
+
+
+#### 2.2 Jwt
+
+---
+
+***JWT(Json Web Token)***:
+
+是一种用于**身份验证和信息传递**的开放标准（RFC 7519）。
+
+**核心特点**：
+
+- 自包含（包含用户信息和权限）
+- 无状态（服务器不需要存储 Session）
+- 跨域友好（适合前后端分离和微服务）
+
+---
+
+导入依赖
+
+```xml
+<!--        jwt依赖     -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+```
+
+
+
+先在application.yml文件中设置jwt的相关参数
+
+```yaml
+jwt:
+	secret: "输入64B长度的字符串作为密钥" 
+	expiration-ms: 86400000 # 24小时（单位：毫秒）
+```
+
+
+
+##### 2.2.1 JwtTokenProvider
+
+创建**JwtTokenProvider**工具类 位于utils包中 用于实现Jwt的相关操作
+
+```java
+package com.xueqiu.vulnscanpro.utils;
+
+
+@Slf4j
+@Component
+public class JwtTokenProvider {
+
+    @Value ("${jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${jwt.expiration-ms}")
+    private long jwtExpirationInMs;
+
+    private Key key;  // 密钥对象 用于登录时签名生成token 验证时校验token
+
+    // 初始化加载密钥
+    @PostConstruct
+    public void init(){
+
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        log.info("原始密钥字节长度: {} 位 ({}字节)", keyBytes.length * 8, keyBytes.length);
+        if (keyBytes.length < 64) { // HS512需要至少64字节
+            log.error("密钥长度不足！需要至少64字节(512位)，当前仅{}字节。", keyBytes.length);
+            // 方案1: 抛异常让应用启动失败
+            throw new IllegalArgumentException("JWT密钥长度不足，请使用至少64字节的Base64密钥");
+        }
+
+        // 将密钥字符串转换为Key对象
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+
+        log.info("JWT密钥初始化成功，密钥长度: {} 位", keyBytes.length * 8);
+    }
+
+
+    /**
+     * 根据认证信息生成JWT令牌
+     */
+    public String generateToken(Authentication authentication) {
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+
+        // 将权限列表转换为逗号分隔的字符串
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .claim("userId", userDetails.getId())  // 将 userId 存入 Claim
+                .claim("authorities",authorities) // 自定义声明：权限
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+
+    /**
+     * 从 Token 中提取用户名
+     */
+    public String getUsernameFromToken(String token) {
+
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
+    }
+
+
+    // 从 Token 中提取 userId
+    public Long getUserIdFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key).build()
+                .parseClaimsJws(token).getBody();
+        return claims.get("userId", Long.class);
+    }
+
+
+    /**
+     * 验证JWT令牌是否有效
+     */
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (SecurityException | MalformedJwtException e) {
+            log.error("无效的JWT签名", e);
+        } catch (ExpiredJwtException e) {
+            log.error("JWT令牌已过期", e);
+        } catch (UnsupportedJwtException e) {
+            log.error("不支持的JWT令牌", e);
+        } catch (IllegalArgumentException e) {
+            log.error("JWT claims字符串为空", e);
+        } catch (Exception e) {
+            log.error("验证JWT令牌时发生错误", e);
+        }
+        return false;
+    }
+
+
+    /**
+     *
+     * 返回jwt令牌过期时间
+     */
+    public long getJwtExpirationInMs(){
+        return jwtExpirationInMs;
+    }
+
+
+
+}
+```
+
+##### 2.2.2 JwtAuthenticationFilter
+
+创建过滤器类**JwtAuthenticationFilter** 用于对前端发送的所有http请求进行鉴权 身份识别 
+
+```java
+package com.xueqiu.vulnscanpro.filter;
+
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final JwtTokenProvider jwtTokenProvider;
+//    private final UserDetailsService userDetailsService;
+
+
+    private String getTokenFromRequest(HttpServletRequest request){
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
+
+        try {
+            // 1. 从请求头获取 Token
+            String token = getTokenFromRequest(request);
+
+            // 2. 验证 Token
+            if(token != null && jwtTokenProvider.validateToken(token)){
+
+                // 从 Token 中提取 ID
+                Long userId = jwtTokenProvider.getUserIdFromToken(token);
+
+                // 3. 从 Token 中提取用户名
+                String username = jwtTokenProvider.getUsernameFromToken(token);
+
+
+                // 4. 加载用户详情
+//                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                CustomUserDetails userDetails = new CustomUserDetails(userId, username, "",true, new ArrayList<>()); // enabled先默认为true
+
+                // 5. 创建认证对象
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                // 6. 设置到 Security Context
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+
+        }
+        catch (Exception e){
+            log.error("无法设置用户认证");
+        }
+
+        filterChain.doFilter(request, response); // 过滤器放行
+    }
+
 
 }
 
 ```
 
-#### 2.2 编写dto类
+
+
+这个类是 Spring Security JWT 鉴权体系中的**“核心安检口”**。如果说 `UserDetailsServiceImpl` 是档案管理员，那么 `JwtAuthenticationFilter` 就是那个站在大门口、搜查每个进场人员（请求）并给合法者发放临时通行证的**保安**。
+
+------
+
+*一、 JwtAuthenticationFilter 的具体作用*
+
+它的唯一目标是：**尝试根据请求头里的 Token，在内存中构建出一个“已登录”的身份。**
+
+1. **搜身 (Extraction)**：检查每一个进入后端的 HTTP 请求，看它的 `Authorization` Header 里有没有带 `Bearer <Token>`。
+2. **验真 (Validation)**：拿着 Token 去问 `JwtTokenProvider`：“这票是真的吗？过期了吗？被涂改了吗？”
+3. **识别 (Identification)**：如果票是真的，直接从票根（Token Claims）里读出 `userId` 和 `username`。
+4. **发证 (Authentication)**：
+   - 你现在的代码做了一个非常高效的操作：**直接 `new` 了一个 `CustomUserDetails`**。
+   - 它不再去查数据库（注掉了 `loadUserByUsername`），而是根据 Token 里的信息原地伪造了一个“身份证明”。
+   - 然后把这个证明塞进 `UsernamePasswordAuthenticationToken`（这就是那个**认证信封**）。
+5. **准入 (Context Setting)**：把信封放进 `SecurityContextHolder`。只要这个信封放进去了，后续的 Controller 就能通过 `getCurrentUserId()` 拿到东西，且 Spring Security 会认为该请求是“已认证”的。
+
+------
+
+*二、 doFilterInternal 的执行时机*
+
+`doFilterInternal` 不是被你的代码主动调用的，它是被 **Servlet 容器（如 Tomcat）** 自动触发的。
+
+1. 触发时机：
+
+- **请求到达 Controller 之前**：它是 HTTP 请求进入后端后的第一道（或早期）关卡。
+- **每次请求都会执行**：因为继承了 `OncePerRequestFilter`，它确保了在**同一个请求生命周期**内，这段逻辑只运行一次。
+
+2. 在过滤链（Filter Chain）中的位置：
+
+Spring Security 内部有一条长长的“过滤链”。
+
+- 当请求进来时，它会依次经过 `CorsFilter`（处理跨域）、`JwtAuthenticationFilter`（你的鉴权）、`UsernamePasswordAuthenticationFilter`（处理账号密码登录）等。
+- 只有当你的 `JwtAuthenticationFilter` 执行完 `filterChain.doFilter(request, response)` 后，请求才会被传给下一个过滤器，直到最后到达你写的 **Controller**。
+
+```mermaid
+flowchart TD
+    Req([HTTP 请求进来]) --> GetToken[getTokenFromRequest]
+    GetToken --> Valid{Token 合法?}
+    
+    Valid -- No/Null --> Next[直接放行给下一个过滤器<br/>因为没证, 后面会报403]
+    
+    Valid -- Yes --> Extract[从 Token 提取 ID 和 Username]
+    Extract --> NewUser[直接 new CustomUserDetails]
+    NewUser --> SetContext[存入 SecurityContextHolder<br/>放入信封]
+    SetContext --> Next
+    
+    Next --> Controller[到达 Controller<br/>getCurrentUserId 开始工作]
+```
+
+
+
+#### 2.3 编写dto类
 
 DTO（Data Transfer Object，数据传输对象）在你的项目中扮演着**系统各层之间安全、高效传输数据的“标准化容器”或“契约”** 的角色。它的核心价值在于**解耦**与**安全**
 
@@ -775,7 +1019,7 @@ public class LoginResponse {
 
 ```
 
-#### 2.3 mapper层设计
+#### 2.4 mapper层设计
 
 使用UserMapper接口定义与用户相关的数据库操作 统一使用mybatis的xml方式实现sql
 
@@ -787,7 +1031,7 @@ public class LoginResponse {
 |   countByUsername   |             `@Param("username") String username`             |      int       |    **注册时检查用户名是否存在**。    |
 | updateLastLoginTime | `@Param("id") Long id` `@Param("loginTime") LocalDateTime loginTime` |      int       |        **记录最后登录时间**。        |
 
-#### 2.4 service层设计
+#### 2.5 service层设计
 
 使用AuthServiceImpl实现AuthService接口 提供用户注册登录的业务逻辑
 
@@ -796,15 +1040,11 @@ public class LoginResponse {
 | register |  RegisterRequest request  |     User      |          用户注册          |
 |  login   | LoginRequest loginRequest | LoginResponse | 用户登录 返回用户认证token |
 
-
-
-#### 2.5 controller层设计
-
-
+#### 2.6 controller层设计
 
 使用AuthController类提供用户注册登录的相关接口
 
-##### 2.5.1 register
+##### 2.6.1 register
 
 - 基本信息
 
@@ -865,9 +1105,7 @@ public class LoginResponse {
   }
   ~~~
 
-
-
-##### 2.5.2 login
+##### 2.6.2 login
 
 - 基本信息
   
@@ -928,7 +1166,228 @@ public class LoginResponse {
   }
   ~~~
 
+#### 2.7 验证码(captcha)功能实现
 
+实现方案（推荐使用 Hutool 工具包）
+
+为了快速实现，我推荐使用 Java 界非常流行的工具库 **Hutool**，它内置了验证码生成工具，代码量极少。
+
+##### 2.7.1 Hutool依赖导入
+
+```xml
+<dependency>
+    <groupId>cn.hutool</groupId>
+    <artifactId>hutool-all</artifactId>
+    <version>5.8.26</version> </dependency>
+```
+
+#####  2.7.2 增加一个获取验证码的接口
+
+在AuthController类中 添加如下getCaptcha方法  // 【注意】这里为了演示暂时用内存存储，生产环境请务必使用 Redis！
+
+```java
+@GetMapping("/captcha")
+public ApiResponse getCaptcha(){
+    // 1. 生成线段干扰的验证码，宽100，高40
+    LineCaptcha lineCaptcha = CaptchaUtil.createLineCaptcha(100,40);
+
+    // 2. 获取验证码的字符（例如 "A1B2"）
+    String code = lineCaptcha.getCode();
+
+    // 3. 生成一个唯一标识符 (UUID)
+    String uuid = UUID.randomUUID().toString();
+
+    // 4. 存入 Store (如果是 Redis，设置过期时间比如 2 分钟)
+    CAPTCHA_STORE.put(uuid,code);
+
+    // 5. 将图片转为 Base64
+    String imageBase64 = lineCaptcha.getImageBase64();
+
+    // 6. 返回给前端：UUID 和 Base64图片
+    Map<String, String> result = new HashMap<>();
+    result.put("uuid", uuid);
+    result.put("image", "data:image/png;base64," + imageBase64); // 前端可以直接放到 src 里
+
+    return ApiResponse.success(result);
+
+}
+```
+
+
+
+##### 2.7.3 修改登录接口，增加验证逻辑
+
+首先修改登录请求对象LoginRequest  增加两个字段来接收前端传来的数据
+
+```java
+package com.xueqiu.vulnscanpro.model.dto.request;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+public class LoginRequest {
+    @NotBlank(message = "用户名不能为空")
+    private String username;
+
+    @NotBlank(message = "密码不能为空")
+    private String password;
+
+    @NotBlank(message = "请输入验证码")
+    private String captchaCode;  // 用户输入的验证码
+
+    private String captchaUuid;  // 获取图片时拿到的 ID
+    
+}
+
+```
+
+修改AuthController类中的登录逻辑
+
+```java
+ @PostMapping("/login")
+    public ApiResponse login(@Valid @RequestBody LoginRequest loginRequest){
+
+        log.info("=== 开始处理登录请求 ===");
+        log.info("登录请求:{}", loginRequest);
+
+        // 1. === 校验验证码逻辑 ===
+        String uuid = loginRequest.getCaptchaUuid();
+        String userInputCode = loginRequest.getCaptchaCode();
+
+        // 从存储中取出正确答案
+        String correctCode = CAPTCHA_STORE.get(uuid);
+
+        if (correctCode == null) {
+            return ApiResponse.error("验证码已过期，请刷新");
+        }
+
+        // 校验（不区分大小写）
+        if (!correctCode.equalsIgnoreCase(userInputCode)) {
+            return ApiResponse.error("验证码错误");
+        }
+
+        // 验证通过后，记得移除这个 Key，防止重复使用
+        CAPTCHA_STORE.remove(uuid);
+
+        try {
+            // 调用Service进行认证并获取令牌
+            LoginResponse loginResponse = authService.login(loginRequest);
+
+            // 使用统一的成功响应格式返回
+            return ApiResponse.success("登录成功",loginResponse);
+
+        }
+        catch (Exception e){
+            log.error("登录失败");
+            return ApiResponse.error("账号或密码错误");
+
+        }
+    }
+```
+
+
+
+### 3. 扫描任务功能实现
+
+要实现一个真正的**自动化漏洞扫描系统**，你需要从目前的“增删改查（CRUD）”跨越到“**异步任务执行引擎**”。这涉及到如何调用底层工具（如 Nmap）、如何管理后台进程、以及如何实时更新进度。
+
+实现这一功能的步骤可以分为以下 **6 个阶段**：
+
+------
+
+### 第一阶段：构建异步执行引擎 (The Engine)
+
+扫描任务是非常耗时的，绝不能在 Controller 里同步等待扫描结束。
+
+1. **引入线程池 (@Async)**：在 Spring Boot 中配置一个专门处理扫描任务的线程池。
+2. **状态流转设计**：
+   - 用户点击“开始” → 数据库状态设为 `PENDING`（排队中）。
+   - 引擎抓取任务 → 状态设为 `RUNNING`（运行中）。
+   - 任务结束 → 状态设为 `COMPLETED`（已完成）或 `FAILED`（失败）。
+
+------
+
+### 第二阶段：集成底层扫描工具 (The Hammer)
+
+你不需要从零开始写扫描算法，行业标准是**“包装现有的安全工具”**。
+
+1. **资产/端口扫描**：集成 **Nmap**。
+   - 通过 Java 的 `ProcessBuilder` 调用系统命令行中的 `nmap`。
+   - 使用 `-oX` 参数输出 XML 格式的结果，方便 Java 解析。
+2. **指纹识别**：利用 Nmap 的 `-sV` 参数获取服务版本，或者集成 **WhatWeb** 识别 Web 指纹。
+3. **漏洞匹配**：
+   - **基础版**：通过版本号匹配 CVE 数据库。
+   - **进阶版**：集成 **Nuclei**（目前最流行的漏洞扫描器）或 **Nessus/OpenVAS**。
+
+------
+
+### 第三阶段：设计扫描流水线 (The Pipeline)
+
+一个完整的扫描过程应该像流水线一样拆解：
+
+1. **任务分发**：从数据库读取 `target`（IP/域名）。
+2. **存活探测**：先看目标是否在线（Ping 或 TCP 探测）。
+3. **端口扫描**：调用 Nmap 扫描 1-65535 端口。
+4. **数据入库（核心）**：
+   - 将 Nmap 发现的主机写入 `assets` 表。
+   - 将发现的服务写入 `ports` 表。
+5. **POC 验证**：根据发现的服务（如 Redis 6379），调用对应的脚本测试是否存在未授权访问等漏洞。
+
+------
+
+### 第四阶段：进度反馈与实时交互 (The User Experience)
+
+前端需要看到“进度条在走”。
+
+1. **进度估算**：根据扫描的端口数量或阶段，动态更新 `scan_tasks` 表中的 `progress` 字段。
+2. **实时通知**：
+   - **方案 A (简单)**：前端每隔 5 秒轮询一次 `GET /api/tasks/{id}` 接口。
+   - **方案 B (专业)**：使用 **WebSocket**。后端每完成一个阶段，主动向前端推送最新进度。
+
+------
+
+### 第五阶段：结果持久化与关联 (The Brain)
+
+你需要建立一套“漏洞库”逻辑：
+
+1. **创建 `vulnerabilities` 表**：存储扫描出的漏洞详情（名称、严重程度、修复建议）。
+2. **多级关联**：
+   - `Vulnerability` -> 关联到 `Asset`。
+   - `Vulnerability` -> 关联到 `Port`。
+   - 这样用户就能看到：*这个漏洞是在 192.168.1.1 的 8080 端口发现的。*
+
+
+
+
+
+安装nmap 7.98 稳定版 
+
+
+
+扫描策略:
+
+#### **🚀 QUICK (快速扫描)**
+
+- **命令**：`nmap -F -sV -T4 --version-light`
+- **解析**：`-F` 只扫最常用的 100 个端口；`--version-light` 降低版本探测的强度，只进行最可能的匹配。
+- **目的**：15 秒内给你结果。
+
+#### **⚖️ STANDARD (标准扫描 - 默认选项)**
+
+- **命令**：`nmap -sV -T4 --top-ports 1000`
+- **解析**：覆盖 90% 的常见服务。不开启 `-O`，平衡了信息获取和权限需求。
+
+#### **🔍 DEEP (深度扫描)**
+
+- **命令**：`nmap -sV -O -p- -T4`
+- **解析**：`-p-` 扫描 1 到 65535 全量端口。这里**开启 `-O`**，因为既然选择了深度扫描，用户肯定愿意等待更久来换取更精准的系统指纹。
+- **风险**：如果 Java 进程没 root 权限，记得在代码里捕获异常或预先检查。
+
+#### **🕵️ STEALTH (隐蔽扫描)**
+
+- **命令**：`nmap -sS -Pn -T2`
+- **解析**：`-sS` 是半开放扫描，不建立完整 TCP 连接；`-Pn` 跳过 Ping 探测（很多防火墙禁 Ping）；`-T2` 降低发包频率，防止被封 IP。
 
 
 
