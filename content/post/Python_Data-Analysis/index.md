@@ -168,6 +168,12 @@ s5 = pd.Series(np.arange(5)) # 使用numpy数组对象创建
 
 使用新建的环境 `conda activate study_env`
 
+`conda env list`展示环境列表
+
+查看依赖包 `pip list`  `conda list`
+
+
+
 
 
 在pycharm中 **Settings** -> **Tools** -> **Terminal** 将Shell Path一项配置为 
