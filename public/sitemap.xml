@@ -2,8 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>http://localhost:1313/post/astrbot/</loc>
+    <lastmod>2026-05-07T15:06:44+08:00</lastmod>
+  </url><url>
     <loc>http://localhost:1313/</loc>
-    <lastmod>2026-01-20T22:42:24+08:00</lastmod>
+    <lastmod>2026-05-07T15:06:44+08:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/post/hugo/</loc>
+    <lastmod>2026-04-21T13:13:58+08:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/post/linux/</loc>
+    <lastmod>2026-04-21T13:10:19+08:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/post/claude-code/</loc>
+    <lastmod>2026-02-23T14:19:05+08:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/post/hackerx/</loc>
     <lastmod>2026-01-20T22:42:24+08:00</lastmod>
@@ -24,6 +36,9 @@
     <lastmod>2026-01-01T11:00:00-07:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/archives/</loc>
+    <lastmod>2022-07-26T21:46:25+08:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/post/</loc>
     <lastmod>2022-07-26T21:46:25+08:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/friend/</loc>

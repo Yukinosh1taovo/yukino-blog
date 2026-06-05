@@ -12,12 +12,285 @@
     
     <copyright>All articles on this blog are licensed under the BY-NC-SA license agreement unless otherwise stated. Please indicate the source when reprinting!</copyright>
     
-    <lastBuildDate>Wed, 14 Jan 2026 14:19:15 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 07 May 2026 15:06:44 +0800</lastBuildDate>
     
     
     <atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss&#43;xml" />
     
 
+    
+    
+
+    <item>
+      <title>Astrbot的配置使用与研究</title>
+      <link>http://localhost:1313/post/astrbot/</link>
+      <pubDate>Thu, 07 May 2026 15:06:44 &#43;0800</pubDate>
+      <author>xxx@example.com (Tairitsusk)</author>
+      <guid>http://localhost:1313/post/astrbot/</guid>
+      <description>
+        <![CDATA[<h1>Astrbot的配置使用与研究</h1><p>Author: Tairitsusk(xxx@example.com)</p>
+        
+          <h1 id="astrbot的配置使用与研究">
+<a class="header-anchor" href="#astrbot%e7%9a%84%e9%85%8d%e7%bd%ae%e4%bd%bf%e7%94%a8%e4%b8%8e%e7%a0%94%e7%a9%b6"></a>
+astrbot的配置使用与研究
+</h1><h2 id="相关链接">
+<a class="header-anchor" href="#%e7%9b%b8%e5%85%b3%e9%93%be%e6%8e%a5"></a>
+相关链接
+</h2><p><a href="https://docs.astrbot.app/">astrbot官方文档</a></p>
+<p><a href="https://napneko.github.io/">napcat官方文档</a></p>
+<p><a href="https://app.rainyun.com/">雨云云服务官网</a></p>
+<h2 id="使用雨云的云应用服务部署">
+<a class="header-anchor" href="#%e4%bd%bf%e7%94%a8%e9%9b%a8%e4%ba%91%e7%9a%84%e4%ba%91%e5%ba%94%e7%94%a8%e6%9c%8d%e5%8a%a1%e9%83%a8%e7%bd%b2"></a>
+使用雨云的云应用服务部署
+</h2><p>特别注意 使用雨云云应用部署时 对应的内网服务url如下图<img src="image-20260412104132487.webp" alt=""></p>
+<p>在napcat的网络配置下 添加Websocket客户端的url应填入<code>ws://svc-astrbot-dehb5s:6199/ws</code></p>
+<h2 id="使用阿里云服务器部署">
+<a class="header-anchor" href="#%e4%bd%bf%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91%e6%9c%8d%e5%8a%a1%e5%99%a8%e9%83%a8%e7%bd%b2"></a>
+使用阿里云服务器部署
+</h2><p>使用ssh连接到云服务器 <code>ssh root@你的公网IP地址</code></p>
+<p>参考<a href="https://www.bilibili.com/video/BV13rXKBPEFb/?spm_id_from=333.337.search-card.all.click&amp;vd_source=bebe80cfa65c7db1ab5baf08c2d68493">AstrBot安装使用指南（终极版)</a></p>
+<h2 id="使用本地linux部署">
+<a class="header-anchor" href="#%e4%bd%bf%e7%94%a8%e6%9c%ac%e5%9c%b0linux%e9%83%a8%e7%bd%b2"></a>
+使用本地linux部署
+</h2><p>本文使用 Windows11 下的 Wsl2 安装<code>Ubuntu22.04</code>进行部署</p>
+<h3 id="安装docker">
+<a class="header-anchor" href="#%e5%ae%89%e8%a3%85docker"></a>
+安装docker
+</h3><ol>
+<li>更新apt包索引并安装依赖包</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-get update
+</span></span><span class="line"><span class="cl">sudo apt-get install <span class="se">\
+</span></span></span><span class="line"><span class="cl">    ca-certificates <span class="se">\
+</span></span></span><span class="line"><span class="cl">    curl <span class="se">\
+</span></span></span><span class="line"><span class="cl">    gnupg <span class="se">\
+</span></span></span><span class="line"><span class="cl">    lsb-release
+</span></span></code></pre></div><ol start="2">
+<li>添加 Docker 的官方 GPG 密钥</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo mkdir -m <span class="m">0755</span> -p /etc/apt/keyrings
+</span></span><span class="line"><span class="cl">curl -fsSL https://download.docker.com/linux/ubuntu/gpg <span class="p">|</span> sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+</span></span></code></pre></div><ol start="3">
+<li>设置 Docker 仓库</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">echo</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">  <span class="s2">&#34;deb [arch=</span><span class="k">$(</span>dpkg --print-architecture<span class="k">)</span><span class="s2"> signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+</span></span></span><span class="line"><span class="cl"><span class="s2">  </span><span class="k">$(</span>lsb_release -cs<span class="k">)</span><span class="s2"> stable&#34;</span> <span class="p">|</span> sudo tee /etc/apt/sources.list.d/docker.list &gt; /dev/null
+</span></span></code></pre></div><ol start="4">
+<li>安装 Docker Engine</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-get update
+</span></span><span class="line"><span class="cl">sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+</span></span></code></pre></div><ol start="5">
+<li>配置Docker镜像源</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo mkdir -p /etc/docker
+</span></span><span class="line"><span class="cl">sudo nano /etc/docker/daemon.json
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">填入以下内容
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;registry-mirrors&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;https://docker.m.daocloud.io&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;https://docker.nju.edu.cn&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;https://mirror.baidubce.com&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">重新读取配置并重启 Docker 服务
+</span></span><span class="line"><span class="cl">sudo systemctl daemon-reload
+</span></span><span class="line"><span class="cl">sudo systemctl restart docker
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">测试是否安装成功
+</span></span><span class="line"><span class="cl">sudo docker run hello-world
+</span></span></code></pre></div><h3 id="使用docker部署">
+<a class="header-anchor" href="#%e4%bd%bf%e7%94%a8docker%e9%83%a8%e7%bd%b2"></a>
+使用docker部署
+</h3><p>参考<a href="https://docs.astrbot.app/deploy/astrbot/docker.html">Astrbot Docker部署方式</a></p>
+        
+        <hr><p>Published on 2026-05-07 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-05-07</p>]]>
+      </description>
+      
+    </item>
+    
+    
+
+    <item>
+      <title>Hugo</title>
+      <link>http://localhost:1313/post/hugo/</link>
+      <pubDate>Tue, 21 Apr 2026 13:13:58 &#43;0800</pubDate>
+      <author>xxx@example.com (Tairitsusk)</author>
+      <guid>http://localhost:1313/post/hugo/</guid>
+      <description>
+        <![CDATA[<h1>Hugo</h1><p>Author: Tairitsusk(xxx@example.com)</p>
+        
+          <p>写作流程命令</p>
+<p><code>hugo new posts/xxx/index.md</code>
+写内容 + 放图片
+<code>hugo server -D</code> 预览
+<code>git add .</code></p>
+<p><code>git commit -m &quot;new post&quot;</code></p>
+<p><code>git push</code>
+自动 CI 部署上线</p>
+<p>修改archetypes文件夹下的default.md文件 修改使用<code>hugo new</code>命令创建新文章的开头模板</p>
+<h2 id="关于图片">
+<a class="header-anchor" href="#%e5%85%b3%e4%ba%8e%e5%9b%be%e7%89%87"></a>
+关于图片
+</h2><p>插入图片要把图片放在对应博客文件夹下  并在md插入图片时把前面的路径删掉 只留下图片名</p>
+<p>如 【图片】( ~~&ldquo;C:\Files\repos\yukino-blog\content\post\astrbot~~ image-20260412104132487.webp&rdquo;)</p>
+        
+        <hr><p>Published on 2026-04-21 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-04-21</p>]]>
+      </description>
+      
+    </item>
+    
+    
+
+    <item>
+      <title>Linux</title>
+      <link>http://localhost:1313/post/linux/</link>
+      <pubDate>Tue, 21 Apr 2026 13:10:19 &#43;0800</pubDate>
+      <author>xxx@example.com (Tairitsusk)</author>
+      <guid>http://localhost:1313/post/linux/</guid>
+      <description>
+        <![CDATA[<h1>Linux</h1><p>Author: Tairitsusk(xxx@example.com)</p>
+        
+          <h1 id="linux的使用">
+<a class="header-anchor" href="#linux%e7%9a%84%e4%bd%bf%e7%94%a8"></a>
+Linux的使用
+</h1><h2 id="重设wsl中linux系统用户的密码">
+<a class="header-anchor" href="#%e9%87%8d%e8%ae%bewsl%e4%b8%adlinux%e7%b3%bb%e7%bb%9f%e7%94%a8%e6%88%b7%e7%9a%84%e5%af%86%e7%a0%81"></a>
+重设WSL中Linux系统用户的密码
+</h2><p>以安装ubuntu22.04版本为例</p>
+<p>在windows终端中输入<code>ubuntu2204 config --default-user root</code> 将wsl登录用户切换为root</p>
+<p>在wsl系统中输入<code>passwd 用户名</code> 修改用户密码</p>
+<p>再回到windows终端中输入<code>ubuntu2204 config --default-user yukino</code> 将wsl登录用户切换为原用户</p>
+<p>或 管理员身份运行ps 输入<code>wsl.exe --user root</code></p>
+<p>再输入<code>passwd root</code> 修改 root 密码</p>
+<p>重置与用户密码与重置root密码类似</p>
+<h2 id="系统内置命令">
+<a class="header-anchor" href="#%e7%b3%bb%e7%bb%9f%e5%86%85%e7%bd%ae%e5%91%bd%e4%bb%a4"></a>
+系统内置命令
+</h2><h2 id="apt包管理器">
+<a class="header-anchor" href="#apt%e5%8c%85%e7%ae%a1%e7%90%86%e5%99%a8"></a>
+APT包管理器
+</h2><p>更新软件清单 <code>sudo apt update</code></p>
+<p>更新系统所有软件 <code>sudo apt upgrade</code></p>
+<p>安装软件 <code>sudo apt install 软件名称</code></p>
+<p>卸载软件（保留配置文件） <code>sudo apt remove 软件名称 </code></p>
+<p>卸载软件（不保留配置文件） <code>sudo apt purge 软件名称</code></p>
+<p>清理不再需要的依赖包 <code>sudo apt autoremove</code></p>
+<p>搜索软件 <code>apt search 关键字</code></p>
+<h2 id="性能监控htop">
+<a class="header-anchor" href="#%e6%80%a7%e8%83%bd%e7%9b%91%e6%8e%a7htop"></a>
+性能监控htop
+</h2><p>输入<code>htop</code>监控性能 按q退出监控</p>
+<h2 id="docker">
+<a class="header-anchor" href="#docker"></a>
+Docker
+</h2><p>查看当前<strong>正在运行</strong>的容器 <code>docker ps</code>  (加上-a 选项查看所有容器)</p>
+        
+        <hr><p>Published on 2026-04-21 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-04-21</p>]]>
+      </description>
+      
+    </item>
+    
+    
+
+    <item>
+      <title>Claude Code</title>
+      <link>http://localhost:1313/post/claude-code/</link>
+      <pubDate>Mon, 23 Feb 2026 14:19:05 &#43;0800</pubDate>
+      <author>xxx@example.com (Tairitsusk)</author>
+      <guid>http://localhost:1313/post/claude-code/</guid>
+      <description>
+        <![CDATA[<h1>Claude Code</h1><p>Author: Tairitsusk(xxx@example.com)</p>
+        
+          <h1 id="claude-code-安装使用">
+<a class="header-anchor" href="#claude-code-%e5%ae%89%e8%a3%85%e4%bd%bf%e7%94%a8"></a>
+Claude code 安装使用
+</h1><p>在安装node.js 环境下 在终端输入 <code>npm install -g @anthropic-ai/claude-code </code>安装claude code</p>
+        
+        <hr><p>Published on 2026-02-23 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-02-23</p>]]>
+      </description>
+      
+    </item>
+    
+    
+
+    <item>
+      <title>毕业设计-网络漏洞扫描与渗透测试平台</title>
+      <link>http://localhost:1313/post/hackerx/</link>
+      <pubDate>Tue, 20 Jan 2026 22:42:24 &#43;0800</pubDate>
+      <author>xxx@example.com (Tairitsusk)</author>
+      <guid>http://localhost:1313/post/hackerx/</guid>
+      <description>
+        <![CDATA[<h1>毕业设计-网络漏洞扫描与渗透测试平台</h1><p>Author: Tairitsusk(xxx@example.com)</p>
+        
+          <h1 id="毕业设计-网络漏洞扫描与渗透测试平台">
+<a class="header-anchor" href="#%e6%af%95%e4%b8%9a%e8%ae%be%e8%ae%a1-%e7%bd%91%e7%bb%9c%e6%bc%8f%e6%b4%9e%e6%89%ab%e6%8f%8f%e4%b8%8e%e6%b8%97%e9%80%8f%e6%b5%8b%e8%af%95%e5%b9%b3%e5%8f%b0"></a>
+毕业设计-网络漏洞扫描与渗透测试平台
+</h1><p>该平台的核心目标是将分散的安全工具和手动流程，集成到一个<strong>自动化、流程化、可视化</strong>的统一系统中。其主要功能模块可分为以下几个方面：</p>
+<p><strong>1. 用户与权限管理</strong>
+这是系统安全与协作的基础。平台提供基于角色的访问控制，通常包括：</p>
+<ul>
+<li><strong>管理员</strong>：拥有最高权限，可以管理所有用户、查看所有任务和报告、配置系统参数。</li>
+<li><strong>安全工程师/普通用户</strong>：可以创建和管理自己的扫描任务，查看自己任务的报告。</li>
+</ul>
+<p><strong>2. 目标管理与扫描任务调度</strong>
+这是平台的核心驱动模块，负责将用户意图转化为可执行的动作。</p>
+<ul>
+<li><strong>任务创建</strong>：用户通过Web界面指定扫描目标（支持单IP、域名、IP段或URL列表）。</li>
+<li><strong>策略选择</strong>：提供预设扫描策略，如“快速扫描”（仅端口）、“Web深度扫描”、“全面扫描”（端口+漏洞）等。</li>
+<li><strong>任务调度与队列</strong>：支持即时、定时或周期性的扫描任务。系统会管理一个任务队列，处理并发扫描请求。</li>
+</ul>
+<p><strong>3. 自动化资产发现与信息收集</strong>
+平台自动执行侦察阶段的工作，替代人工使用多个工具。</p>
+<ul>
+<li><strong>端口与服务发现</strong>：集成类似Nmap的引擎，自动探测目标开放的端口、识别运行的服务及其版本。</li>
+<li><strong>Web应用识别</strong>：对发现的Web服务（如80， 443， 8080端口），进行路径爬取、技术栈（框架、中间件、前端库）指纹识别。</li>
+<li><strong>资产关联与入库</strong>：将发现的所有主机、域名、服务等信息，结构化地存入数据库，形成清晰的资产清单。</li>
+</ul>
+<p><strong>4. 智能化漏洞检测</strong>
+这是平台的技术核心，集成了多种检测手段。</p>
+<ul>
+<li><strong>已知漏洞扫描</strong>：基于插件或规则库，对识别的服务版本进行匹配，查找已知的公开漏洞。</li>
+<li><strong>Web应用漏洞扫描</strong>：自动化检测SQL注入、跨站脚本、命令注入、不安全配置等OWASP Top 10风险。</li>
+<li><strong>弱口令检测</strong>：可对常见的服务（如SSH， FTP， MySQL， Redis）进行字典爆破或弱口令检查。</li>
+<li><strong>结果去重与验证</strong>：对扫描出的漏洞进行初步的自动验证（如通过无害的Payload触发），并合并重复发现，降低误报。</li>
+</ul>
+<p><strong>5. 数据集中化展示与报告生成</strong>
+提供统一的可视化界面，告别分散的命令行输出和日志文件。</p>
+<ul>
+<li><strong>实时监控仪表盘</strong>：展示平台整体状态，如任务执行情况、资产总数、漏洞风险分布（饼图）、近期活动等。</li>
+<li><strong>资产与漏洞管理台</strong>：以列表和详情页的形式，清晰展示所有发现的资产和漏洞。漏洞可按风险等级、类型、资产等维度筛选和排序。</li>
+<li><strong>专业报告生成</strong>：一键生成结构化的渗透测试报告，支持HTML或PDF格式。报告通常包括概述、测试方法、发现漏洞的详细描述、风险评级、证据截图（如有）及修复建议。</li>
+</ul>
+<h2 id="一springboot项目创建-环境搭建">
+<a class="header-anchor" href="#%e4%b8%80springboot%e9%a1%b9%e7%9b%ae%e5%88%9b%e5%bb%ba-%e7%8e%af%e5%a2%83%e6%90%ad%e5%bb%ba"></a>
+一、springboot项目创建 (环境搭建)
+</h2><p><a href="https://www.spring-doc.cn/projects/spring-boot#overview">springboot中文文档</a></p>
+<p><a href="https://spring.io/guides">spring官方文档</a></p>
+<p>创建springboot项目</p>
+<p>选择springboot 3.0.2 + jdk17 进行开发</p>
+<p><img src="image-20260104105925142.webp" alt="image-20260104105925142"></p>
+<p>添加如下依赖</p>
+<p><img src="image-20260104105942083.webp" alt="image-20260104105942083"></p>
+<p>连接好数据库后创建数据库 数据库名为 vulnscan_platform</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">schema</span><span class="w"> </span><span class="n">vulnscan_platform</span><span class="w">
+</span></span></span></code></pre></div><p>设计好数据库并创建后 创建好标准springboot项目目录结构</p>
+<p><img src="image-20260124142032499.webp" alt="image-20260124142032499"></p>
+<h2 id="二-数据库分析搭建">
+<a class="header-anchor" href="#%e4%ba%8c-%e6%95%b0%e6%8d%ae%e5%ba%93%e5%88%86%e6%9e%90%e6%90%ad%e5%bb%ba"></a>
+二、 数据库分析搭建
+</h2><p>根据功能分析预估 设计以下数据库表结构</p>
+<p><img src="image-202601241426374381.webp" alt="image-20260228164920753"></p>
+<p>以下为对每张表的详细设计</p>
+        
+        <hr><p>Published on 2026-01-20 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-01-20</p>]]>
+      </description>
+      
+    </item>
     
     
 
@@ -124,305 +397,6 @@ DDL(Data Definition Language 数据定义语言)
     
 
     <item>
-      <title>毕业设计-网络漏洞扫描与渗透测试平台</title>
-      <link>http://localhost:1313/post/vulnscanpro/</link>
-      <pubDate>Sun, 04 Jan 2026 22:42:24 &#43;0800</pubDate>
-      <author>xxx@example.com (Tairitsusk)</author>
-      <guid>http://localhost:1313/post/vulnscanpro/</guid>
-      <description>
-        <![CDATA[<h1>毕业设计-网络漏洞扫描与渗透测试平台</h1><p>Author: Tairitsusk(xxx@example.com)</p>
-        
-          <h1 id="毕业设计-网络漏洞扫描与渗透测试平台">
-<a class="header-anchor" href="#%e6%af%95%e4%b8%9a%e8%ae%be%e8%ae%a1-%e7%bd%91%e7%bb%9c%e6%bc%8f%e6%b4%9e%e6%89%ab%e6%8f%8f%e4%b8%8e%e6%b8%97%e9%80%8f%e6%b5%8b%e8%af%95%e5%b9%b3%e5%8f%b0"></a>
-毕业设计-网络漏洞扫描与渗透测试平台
-</h1><p>该平台的核心目标是将分散的安全工具和手动流程，集成到一个<strong>自动化、流程化、可视化</strong>的统一系统中。其主要功能模块可分为以下几个方面：</p>
-<p><strong>1. 用户与权限管理</strong>
-这是系统安全与协作的基础。平台提供基于角色的访问控制，通常包括：</p>
-<ul>
-<li><strong>管理员</strong>：拥有最高权限，可以管理所有用户、查看所有任务和报告、配置系统参数。</li>
-<li><strong>安全工程师/普通用户</strong>：可以创建和管理自己的扫描任务，查看自己任务的报告。</li>
-</ul>
-<p><strong>2. 目标管理与扫描任务调度</strong>
-这是平台的核心驱动模块，负责将用户意图转化为可执行的动作。</p>
-<ul>
-<li><strong>任务创建</strong>：用户通过Web界面指定扫描目标（支持单IP、域名、IP段或URL列表）。</li>
-<li><strong>策略选择</strong>：提供预设扫描策略，如“快速扫描”（仅端口）、“Web深度扫描”、“全面扫描”（端口+漏洞）等。</li>
-<li><strong>任务调度与队列</strong>：支持即时、定时或周期性的扫描任务。系统会管理一个任务队列，处理并发扫描请求。</li>
-</ul>
-<p><strong>3. 自动化资产发现与信息收集</strong>
-平台自动执行侦察阶段的工作，替代人工使用多个工具。</p>
-<ul>
-<li><strong>端口与服务发现</strong>：集成类似Nmap的引擎，自动探测目标开放的端口、识别运行的服务及其版本。</li>
-<li><strong>Web应用识别</strong>：对发现的Web服务（如80， 443， 8080端口），进行路径爬取、技术栈（框架、中间件、前端库）指纹识别。</li>
-<li><strong>资产关联与入库</strong>：将发现的所有主机、域名、服务等信息，结构化地存入数据库，形成清晰的资产清单。</li>
-</ul>
-<p><strong>4. 智能化漏洞检测</strong>
-这是平台的技术核心，集成了多种检测手段。</p>
-<ul>
-<li><strong>已知漏洞扫描</strong>：基于插件或规则库，对识别的服务版本进行匹配，查找已知的公开漏洞。</li>
-<li><strong>Web应用漏洞扫描</strong>：自动化检测SQL注入、跨站脚本、命令注入、不安全配置等OWASP Top 10风险。</li>
-<li><strong>弱口令检测</strong>：可对常见的服务（如SSH， FTP， MySQL， Redis）进行字典爆破或弱口令检查。</li>
-<li><strong>结果去重与验证</strong>：对扫描出的漏洞进行初步的自动验证（如通过无害的Payload触发），并合并重复发现，降低误报。</li>
-</ul>
-<p><strong>5. 数据集中化展示与报告生成</strong>
-提供统一的可视化界面，告别分散的命令行输出和日志文件。</p>
-<ul>
-<li><strong>实时监控仪表盘</strong>：展示平台整体状态，如任务执行情况、资产总数、漏洞风险分布（饼图）、近期活动等。</li>
-<li><strong>资产与漏洞管理台</strong>：以列表和详情页的形式，清晰展示所有发现的资产和漏洞。漏洞可按风险等级、类型、资产等维度筛选和排序。</li>
-<li><strong>专业报告生成</strong>：一键生成结构化的渗透测试报告，支持HTML或PDF格式。报告通常包括概述、测试方法、发现漏洞的详细描述、风险评级、证据截图（如有）及修复建议。</li>
-</ul>
-<h2 id="一springboot项目创建-环境搭建">
-<a class="header-anchor" href="#%e4%b8%80springboot%e9%a1%b9%e7%9b%ae%e5%88%9b%e5%bb%ba-%e7%8e%af%e5%a2%83%e6%90%ad%e5%bb%ba"></a>
-一、springboot项目创建 (环境搭建)
-</h2><p><a href="https://www.spring-doc.cn/projects/spring-boot#overview">springboot中文文档</a></p>
-<p><a href="https://spring.io/guides">spring官方文档</a></p>
-<p>创建springboot项目</p>
-<p>选择springboot 3.0.2 + jdk17</p>
-<p><img src="image-20260104105925142.webp" alt="image-20260104105925142"></p>
-<p>添加如下依赖</p>
-<p><img src="image-20260104105942083.webp" alt="image-20260104105942083"></p>
-<p>连接好数据库后创建数据库 数据库名为 vulnscan_platform</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">schema</span><span class="w"> </span><span class="n">vulnscan_platform</span><span class="w">
-</span></span></span></code></pre></div><p>设计好数据库并创建后 创建好标准springboot项目目录结构</p>
-<p><img src="C:%5CFiles%5Crepos%5Cyukino-blog%5Ccontent%5Cpost%5CVulnScanPro%5Cimage-20260124142032499.webp" alt="image-20260124142032499"></p>
-<h2 id="二-数据库分析创建">
-<a class="header-anchor" href="#%e4%ba%8c-%e6%95%b0%e6%8d%ae%e5%ba%93%e5%88%86%e6%9e%90%e5%88%9b%e5%bb%ba"></a>
-二、 数据库分析创建
-</h2><p>根据功能分析预估 设计以下数据库表结构</p>
-<p><img src="C:%5CFiles%5Crepos%5Cyukino-blog%5Ccontent%5Cpost%5CVulnScanPro%5Cimage-20260124142637438.webp" alt=""></p>
-<p>以下为对每张表的详细设计</p>
-<h3 id="1-用户表">
-<a class="header-anchor" href="#1-%e7%94%a8%e6%88%b7%e8%a1%a8"></a>
-1. 用户表
-</h3><table>
-  <thead>
-      <tr>
-          <th style="text-align: center"><strong>字段名</strong></th>
-          <th style="text-align: center"><strong>类型</strong></th>
-          <th style="text-align: center">键值</th>
-          <th style="text-align: center">空/非空</th>
-          <th style="text-align: center"><strong>默认值</strong></th>
-          <th style="text-align: center">描述</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td style="text-align: center">id</td>
-          <td style="text-align: center">bigint</td>
-          <td style="text-align: center">主键</td>
-          <td style="text-align: center">NOT NULL</td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center">用户唯一标识</td>
-      </tr>
-      <tr>
-          <td style="text-align: center">username</td>
-          <td style="text-align: center">varchar(50)</td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center">NOT NULL</td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center">用户名，用于登录</td>
-      </tr>
-      <tr>
-          <td style="text-align: center">password_hash</td>
-          <td style="text-align: center">varchar(255)</td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center">NOT NULL</td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center">加密后的密码</td>
-      </tr>
-      <tr>
-          <td style="text-align: center">email</td>
-          <td style="text-align: center">varchar(100)</td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center">NULL</td>
-          <td style="text-align: center">电子邮箱</td>
-      </tr>
-      <tr>
-          <td style="text-align: center">role</td>
-          <td style="text-align: center">varchar(20)</td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center">NOT NULL</td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center">角色：ADMIN, USER</td>
-      </tr>
-      <tr>
-          <td style="text-align: center">is_active</td>
-          <td style="text-align: center">tinyint(1)</td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center">NOT NULL</td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center">账户是否启用（1启用，0禁用）</td>
-      </tr>
-      <tr>
-          <td style="text-align: center">created_at</td>
-          <td style="text-align: center">timestamp</td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center">NOT NULL</td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center">账户创建时间</td>
-      </tr>
-      <tr>
-          <td style="text-align: center">updated_at</td>
-          <td style="text-align: center">timestamp</td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center"></td>
-          <td style="text-align: center">NULL</td>
-          <td style="text-align: center">最后更新时间</td>
-      </tr>
-  </tbody>
-</table>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 1. 用户表
-</span></span></span><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="n">users</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;用户唯一标识&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">username</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;用户名，用于登录&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">password_hash</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;加密后的密码&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">email</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;电子邮箱&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="k">role</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;USER&#39;</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;角色：ADMIN, USER&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">is_active</span><span class="o">`</span><span class="w"> </span><span class="n">tinyint</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;账户是否启用（1启用，0禁用）&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">created_at</span><span class="o">`</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;账户创建时间&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">updated_at</span><span class="o">`</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;最后更新时间&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">UNIQUE</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">uk_users_username</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">username</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_users_role</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="k">role</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_users_created_at</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">created_at</span><span class="o">`</span><span class="p">)</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span><span class="w"> </span><span class="k">COLLATE</span><span class="o">=</span><span class="n">utf8mb4_0900_ai_ci</span><span class="w"> </span><span class="k">COMMENT</span><span class="o">=</span><span class="s1">&#39;系统用户表&#39;</span><span class="p">;</span><span class="w">
-</span></span></span></code></pre></div><h3 id="2-扫描任务主表">
-<a class="header-anchor" href="#2-%e6%89%ab%e6%8f%8f%e4%bb%bb%e5%8a%a1%e4%b8%bb%e8%a1%a8"></a>
-2. 扫描任务主表
-</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-mysql" data-lang="mysql"><span class="line"><span class="cl"><span class="c1">-- 2. 扫描任务主表
-</span></span></span><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="n">scan_tasks</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="w"> </span><span class="kt">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="no">NULL</span><span class="w"> </span><span class="kp">AUTO_INCREMENT</span><span class="w"> </span><span class="n">COMMENT</span><span class="w"> </span><span class="s1">&#39;任务唯一标识&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">user_id</span><span class="o">`</span><span class="w"> </span><span class="kt">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="no">NULL</span><span class="w"> </span><span class="n">COMMENT</span><span class="w"> </span><span class="s1">&#39;任务创建者ID&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">task_name</span><span class="o">`</span><span class="w"> </span><span class="kt">varchar</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="no">NULL</span><span class="w"> </span><span class="n">COMMENT</span><span class="w"> </span><span class="s1">&#39;任务名称&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">target</span><span class="o">`</span><span class="w"> </span><span class="kt">text</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="no">NULL</span><span class="w"> </span><span class="n">COMMENT</span><span class="w"> </span><span class="s1">&#39;扫描目标（IP、域名、URL，支持逗号分隔）&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">scan_policy</span><span class="o">`</span><span class="w"> </span><span class="kt">varchar</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="no">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;FULL&#39;</span><span class="w"> </span><span class="n">COMMENT</span><span class="w"> </span><span class="s1">&#39;扫描策略：QUICK, FULL, WEB_ONLY等&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">status</span><span class="o">`</span><span class="w"> </span><span class="kt">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="no">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;PENDING&#39;</span><span class="w"> </span><span class="n">COMMENT</span><span class="w"> </span><span class="s1">&#39;任务状态：PENDING, RUNNING, COMPLETED, FAILED, CANCELLED&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">progress</span><span class="o">`</span><span class="w"> </span><span class="kt">tinyint</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;0&#39;</span><span class="w"> </span><span class="n">COMMENT</span><span class="w"> </span><span class="s1">&#39;任务进度（0-100）&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">start_time</span><span class="o">`</span><span class="w"> </span><span class="kt">timestamp</span><span class="w"> </span><span class="no">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="no">NULL</span><span class="w"> </span><span class="n">COMMENT</span><span class="w"> </span><span class="s1">&#39;任务开始执行时间&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">end_time</span><span class="o">`</span><span class="w"> </span><span class="kt">timestamp</span><span class="w"> </span><span class="no">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="no">NULL</span><span class="w"> </span><span class="n">COMMENT</span><span class="w"> </span><span class="s1">&#39;任务结束时间&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">created_at</span><span class="o">`</span><span class="w"> </span><span class="kt">timestamp</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="no">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="n">COMMENT</span><span class="w"> </span><span class="s1">&#39;任务创建时间&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_tasks_user_id</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">user_id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_tasks_status</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">status</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_tasks_created_at</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">created_at</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="o">`</span><span class="n">fk_tasks_user_id</span><span class="o">`</span><span class="w"> </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">user_id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="o">`</span><span class="n">users</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="p">)</span><span class="w"> </span><span class="kp">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="kp">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span><span class="w"> </span><span class="k">COLLATE</span><span class="o">=</span><span class="n">utf8mb4_0900_ai_ci</span><span class="w"> </span><span class="n">COMMENT</span><span class="o">=</span><span class="s1">&#39;扫描任务主表&#39;</span><span class="p">;</span><span class="w">
-</span></span></span></code></pre></div><h3 id="3-任务状态日志表用于详细追踪">
-<a class="header-anchor" href="#3-%e4%bb%bb%e5%8a%a1%e7%8a%b6%e6%80%81%e6%97%a5%e5%bf%97%e8%a1%a8%e7%94%a8%e4%ba%8e%e8%af%a6%e7%bb%86%e8%bf%bd%e8%b8%aa"></a>
-3. 任务状态日志表（用于详细追踪）
-</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="n">task_status_logs</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;日志ID&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">task_id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;关联的任务ID&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">stage</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;当前阶段：PORT_SCAN, WEB_CRAWL, VULN_SCAN等&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">status</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;阶段状态：START, SUCCESS, WARNING, ERROR&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">message</span><span class="o">`</span><span class="w"> </span><span class="nb">text</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;状态详细信息或错误日志&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">created_at</span><span class="o">`</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;日志记录时间&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_logs_task_id</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">task_id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_logs_created_at</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">created_at</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="o">`</span><span class="n">fk_logs_task_id</span><span class="o">`</span><span class="w"> </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">task_id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="o">`</span><span class="n">scan_tasks</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span><span class="w"> </span><span class="k">COLLATE</span><span class="o">=</span><span class="n">utf8mb4_0900_ai_ci</span><span class="w"> </span><span class="k">COMMENT</span><span class="o">=</span><span class="s1">&#39;任务状态详细日志表&#39;</span><span class="p">;</span><span class="w">
-</span></span></span></code></pre></div><h3 id="4-资产表发现的主机">
-<a class="header-anchor" href="#4-%e8%b5%84%e4%ba%a7%e8%a1%a8%e5%8f%91%e7%8e%b0%e7%9a%84%e4%b8%bb%e6%9c%ba"></a>
-4. 资产表（发现的主机）
-</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="n">assets</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;资产ID&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">task_id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;所属扫描任务ID&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">ip_address</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">45</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;IP地址（支持IPv6）&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">hostname</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;主机名&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">os_guess</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;猜测的操作系统&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">last_seen</span><span class="o">`</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;最后一次被发现的时间&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_assets_task_id</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">task_id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_assets_ip</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">ip_address</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="o">`</span><span class="n">fk_assets_task_id</span><span class="o">`</span><span class="w"> </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">task_id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="o">`</span><span class="n">scan_tasks</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span><span class="w"> </span><span class="k">COLLATE</span><span class="o">=</span><span class="n">utf8mb4_0900_ai_ci</span><span class="w"> </span><span class="k">COMMENT</span><span class="o">=</span><span class="s1">&#39;发现的网络资产表&#39;</span><span class="p">;</span><span class="w">
-</span></span></span></code></pre></div><h3 id="5-端口表">
-<a class="header-anchor" href="#5-%e7%ab%af%e5%8f%a3%e8%a1%a8"></a>
-5. 端口表
-</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 5. 端口表
-</span></span></span><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="n">ports</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;端口记录ID&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">asset_id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;所属资产ID&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">port_number</span><span class="o">`</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;端口号&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">protocol</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;tcp&#39;</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;协议：tcp, udp&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">service_name</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;服务名称（如ssh, http）&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">version_info</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;服务版本信息&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="k">state</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;unknown&#39;</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;端口状态：open, closed, filtered, unknown&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">UNIQUE</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">uk_ports_asset_port</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">asset_id</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">port_number</span><span class="o">`</span><span class="p">,</span><span class="w"> </span><span class="o">`</span><span class="n">protocol</span><span class="o">`</span><span class="p">),</span><span class="w"> </span><span class="c1">-- 防止重复记录
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_ports_service</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">service_name</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="o">`</span><span class="n">fk_ports_asset_id</span><span class="o">`</span><span class="w"> </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">asset_id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="o">`</span><span class="n">assets</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span><span class="w"> </span><span class="k">COLLATE</span><span class="o">=</span><span class="n">utf8mb4_0900_ai_ci</span><span class="w"> </span><span class="k">COMMENT</span><span class="o">=</span><span class="s1">&#39;资产开放端口及服务表&#39;</span><span class="p">;</span><span class="w">
-</span></span></span></code></pre></div><h3 id="6-漏洞表">
-<a class="header-anchor" href="#6-%e6%bc%8f%e6%b4%9e%e8%a1%a8"></a>
-6. 漏洞表
-</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="n">vulnerabilities</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;漏洞记录ID&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">task_id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;发现该漏洞的任务ID&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">asset_id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;关联的资产ID（可为空，如纯域名漏洞）&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">port_id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;关联的端口ID（可为空）&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">vuln_type</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;漏洞类型：SQLi, XSS, WEAK_PASSWORD等&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">title</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;漏洞标题&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">risk_level</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;MEDIUM&#39;</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;风险等级：CRITICAL, HIGH, MEDIUM, LOW, INFO&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">is_fixed</span><span class="o">`</span><span class="w"> </span><span class="n">tinyint</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;0&#39;</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;是否已修复（0未修复，1已修复）&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">discovered_at</span><span class="o">`</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;漏洞发现时间&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_vulns_task_id</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">task_id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_vulns_asset_id</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">asset_id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_vulns_risk_level</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">risk_level</span><span class="o">`</span><span class="p">),</span><span class="w"> </span><span class="c1">-- 便于按风险级别筛选
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_vulns_discovered_at</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">discovered_at</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="o">`</span><span class="n">fk_vulns_task_id</span><span class="o">`</span><span class="w"> </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">task_id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="o">`</span><span class="n">scan_tasks</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="o">`</span><span class="n">fk_vulns_asset_id</span><span class="o">`</span><span class="w"> </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">asset_id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="o">`</span><span class="n">assets</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="o">`</span><span class="n">fk_vulns_port_id</span><span class="o">`</span><span class="w"> </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">port_id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="o">`</span><span class="n">ports</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="k">NULL</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span><span class="w"> </span><span class="k">COLLATE</span><span class="o">=</span><span class="n">utf8mb4_0900_ai_ci</span><span class="w"> </span><span class="k">COMMENT</span><span class="o">=</span><span class="s1">&#39;漏洞主表&#39;</span><span class="p">;</span><span class="w">
-</span></span></span></code></pre></div><h3 id="7-漏洞详情表与漏洞表一对一或一对多">
-<a class="header-anchor" href="#7-%e6%bc%8f%e6%b4%9e%e8%af%a6%e6%83%85%e8%a1%a8%e4%b8%8e%e6%bc%8f%e6%b4%9e%e8%a1%a8%e4%b8%80%e5%af%b9%e4%b8%80%e6%88%96%e4%b8%80%e5%af%b9%e5%a4%9a"></a>
-7. 漏洞详情表（与漏洞表一对一或一对多）
-</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="n">vulnerability_details</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;详情ID&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">vulnerability_id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;关联的漏洞ID&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">description</span><span class="o">`</span><span class="w"> </span><span class="nb">text</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;漏洞详细描述&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">proof</span><span class="o">`</span><span class="w"> </span><span class="nb">text</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;漏洞证据（如请求/响应包）&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">recommendation</span><span class="o">`</span><span class="w"> </span><span class="nb">text</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;修复建议&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">cve_id</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;关联的CVE编号（如CVE-2021-12345）&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">scanner_source</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;发现此漏洞的扫描器或插件名称&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">UNIQUE</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">uk_details_vuln_id</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">vulnerability_id</span><span class="o">`</span><span class="p">),</span><span class="w"> </span><span class="c1">-- 确保一个漏洞只有一条详情记录
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_details_cve_id</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">cve_id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="o">`</span><span class="n">fk_details_vuln_id</span><span class="o">`</span><span class="w"> </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">vulnerability_id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="o">`</span><span class="n">vulnerabilities</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span><span class="w"> </span><span class="k">COLLATE</span><span class="o">=</span><span class="n">utf8mb4_0900_ai_ci</span><span class="w"> </span><span class="k">COMMENT</span><span class="o">=</span><span class="s1">&#39;漏洞详情表&#39;</span><span class="p">;</span><span class="w">
-</span></span></span></code></pre></div><h3 id="8-报告表">
-<a class="header-anchor" href="#8-%e6%8a%a5%e5%91%8a%e8%a1%a8"></a>
-8. 报告表
-</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="o">`</span><span class="n">reports</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;报告ID&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">task_id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;关联的扫描任务ID&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">user_id</span><span class="o">`</span><span class="w"> </span><span class="nb">bigint</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;报告生成者ID&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">title</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;报告标题&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">summary</span><span class="o">`</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;报告摘要JSON（包含统计信息）&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">file_path</span><span class="o">`</span><span class="w"> </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;生成的报告文件（PDF/HTML）存储路径&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="o">`</span><span class="n">generated_at</span><span class="o">`</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="w"> </span><span class="k">COMMENT</span><span class="w"> </span><span class="s1">&#39;报告生成时间&#39;</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_reports_task_id</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">task_id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">KEY</span><span class="w"> </span><span class="o">`</span><span class="n">idx_reports_user_id</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">user_id</span><span class="o">`</span><span class="p">),</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="o">`</span><span class="n">fk_reports_task_id</span><span class="o">`</span><span class="w"> </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">task_id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="o">`</span><span class="n">scan_tasks</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">,</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="o">`</span><span class="n">fk_reports_user_id</span><span class="o">`</span><span class="w"> </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">user_id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="o">`</span><span class="n">users</span><span class="o">`</span><span class="w"> </span><span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="p">)</span><span class="w"> </span><span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span><span class="w"> </span><span class="k">COLLATE</span><span class="o">=</span><span class="n">utf8mb4_0900_ai_ci</span><span class="w"> </span><span class="k">COMMENT</span><span class="o">=</span><span class="s1">&#39;扫描报告表&#39;</span><span class="p">;</span><span class="w">
-</span></span></span></code></pre></div><h2 id="三-后端功能实现">
-<a class="header-anchor" href="#%e4%b8%89-%e5%90%8e%e7%ab%af%e5%8a%9f%e8%83%bd%e5%ae%9e%e7%8e%b0"></a>
-三、 后端功能实现
-</h2><p>开发环境</p>
-        
-        <hr><p>Published on 2026-01-04 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-01-04</p>]]>
-      </description>
-      
-    </item>
-    
-    
-
-    <item>
       <title>Git的使用入门</title>
       <link>http://localhost:1313/post/git/</link>
       <pubDate>Fri, 02 Jan 2026 13:14:30 &#43;0800</pubDate>
@@ -476,15 +450,15 @@ git常用命令
     <item>
       <title>Hello World</title>
       <link>http://localhost:1313/post/hello/</link>
-      <pubDate>Thu, 01 Jan 2026 11:00:00 -0700</pubDate>
+      <pubDate>Tue, 01 Oct 2024 11:00:00 -0700</pubDate>
       <author>xxx@example.com (Tairitsusk)</author>
       <guid>http://localhost:1313/post/hello/</guid>
       <description>
         <![CDATA[<h1>Hello World</h1><p>Author: Tairitsusk(xxx@example.com)</p>
         
-          <p>Hello World</p>
+          <p>Hello World!</p>
         
-        <hr><p>Published on 2026-01-01 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-01-01</p>]]>
+        <hr><p>Published on 2024-10-01 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-01-01</p>]]>
       </description>
       
     </item>

@@ -44,8 +44,6 @@ title = '毕业设计-网络漏洞扫描与渗透测试平台'
 - **资产与漏洞管理台**：以列表和详情页的形式，清晰展示所有发现的资产和漏洞。漏洞可按风险等级、类型、资产等维度筛选和排序。
 - **专业报告生成**：一键生成结构化的渗透测试报告，支持HTML或PDF格式。报告通常包括概述、测试方法、发现漏洞的详细描述、风险评级、证据截图（如有）及修复建议。
 
-
-
 ## 一、springboot项目创建 (环境搭建)
 
 [springboot中文文档](https://www.spring-doc.cn/projects/spring-boot#overview)
@@ -70,7 +68,7 @@ create schema vulnscan_platform
 
 设计好数据库并创建后 创建好标准springboot项目目录结构
 
-![image-20260124142032499](C:\Files\repos\yukino-blog\content\post\VulnScanPro\image-20260124142032499.webp)
+![image-20260124142032499](image-20260124142032499.webp)
 
 
 
@@ -78,7 +76,7 @@ create schema vulnscan_platform
 
 根据功能分析预估 设计以下数据库表结构 
 
-![image-20260228164920753](C:\Files\repos\yukino-blog\content\post\VulnScanPro\image-202601241426374381.webp)
+![image-20260228164920753](image-202601241426374381.webp)
 
 以下为对每张表的详细设计
 
@@ -629,10 +627,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 }
 
 ```
-
-
-
-
 
 #### 2.2 Jwt
 
@@ -1395,17 +1389,20 @@ public class LoginRequest {
 
 
 
+### 扫描日志用本地文件系统存储
 
+流式架构方案
 
+结合上面的沙盘，我们复盘一下整个工作原理（也就是你目前写在代码里的真实逻辑）：
 
-
-
-
-
-
-
-
-
+1. **引爆点 (Process Start)**：你的主线程执行 `pb.start()`，操作系统拉起 Nuclei 的 Go 进程。此时，操作系统会在内核里分配一块非常小的内存（比如 64KB）作为两者通信的桥梁，这就是**标准输出管道 (stdout pipe)**。
+2. **引擎狂飙 (Engine Output)**：Nuclei 疯狂工作，向这个管道里塞入 JSONL 漏洞数据。
+3. **抽水机 (StreamGobbler)**：你的后台异步线程 `outputGobbler` 像一台强力抽水机，使用 `BufferedReader.readLine()` **持续、实时地**把管道里的数据抽到 JVM 内存里。这保证了管道永远不满，Nuclei 永远不死锁。
+4. **分流与落地 (I/O & Disk)**：
+   - **业务流**：抽出来的如果是一条 JSON 漏洞记录，直接交给 MyBatis 存入 MySQL 的业务表。
+   - **日志流**：无论抽出什么，都立刻加上格式化时间戳，通过 `PrintWriter.flush()` 强制将 JVM 内存里的字符串刷入物理服务器的 SSD 硬盘上（也就是你配置的 `task_1001.log`）。
+5. **大屏幕推送 (SSE Streaming)**：此时前端发起了一个 SSE 请求。Java 的一个独立线程会像“尾行者（Tail）”一样，死死盯住这个 `.log` 文件。一旦发现文件多了一行内容，立刻通过维持长连接的 HTTP Response 流，以 `data: [INFO] xxx\n\n` 的格式推送到前端 Vue3。
+6. **前端消费 (Vue 3)**：浏览器的 `EventSource` 对象收到数据，触发事件，前端把这一行字追加到大屏控制台的末尾。
 
 
 
@@ -1433,4 +1430,29 @@ npm install
 npm run dev
 
 
+
+
+
+
+
+
+
+```java
+// 核心逻辑简述：封装 ProcessBuilder 以拉起外部扫描引擎
+public Process executeEngine(List<String> commandParams) throws IOException {
+    // 1. 初始化进程构建器，加载扫描指令
+    ProcessBuilder pb = new ProcessBuilder(commandParams);
+    
+    // 2. 环境配置：设置工作目录，合并错误流以便于统一监控
+    pb.directory(new File(System.getProperty("user.dir")));
+    pb.redirectErrorStream(true);
+    
+    // 3. 启动进程并返回进程句柄
+    Process process = pb.start();
+    
+    // 4. 注册进程监控逻辑（此处返回句柄供下一步的流吞噬者挂载）
+    return process;
+}
+
+```
 
