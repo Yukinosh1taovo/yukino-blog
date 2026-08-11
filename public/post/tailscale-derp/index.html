@@ -8,7 +8,7 @@
   name="viewport"
   content="width=device-width, initial-scale=1, shrink-to-fit=no"
 /><title>
-  Astrbot的配置使用与研究 | Tairitsusk
+  自建 Tailscale DERP 节点不完全指北 | Tairitsusk
 </title>
 <meta name="description" content="一只雪球"/><script>
   window.siteConfig = JSON.parse("{\"anchor_icon\":null,\"base\":\"http://localhost:1313/\",\"clipboard\":{\"copyright\":{\"count\":50,\"enable\":false,\"license_type\":\"by-nc-sa\"},\"fail\":{\"en\":\"Copy failed (ﾟ⊿ﾟ)ﾂ\",\"ja\":\"コピー失敗 (ﾟ⊿ﾟ)ﾂ\",\"pt-br\":\"Falha ao copiar (ﾟ⊿ﾟ)ﾂ\",\"zh-cn\":\"复制失败 (ﾟ⊿ﾟ)ﾂ\",\"zh-tw\":\"複製失敗 (ﾟ⊿ﾟ)ﾂ\"},\"success\":{\"en\":\"Copy successfully (*^▽^*)\",\"ja\":\"コピー成功 (*^▽^*)\",\"pt-br\":\"Copiado com sucesso (*^▽^*)\",\"zh-cn\":\"复制成功 (*^▽^*)\",\"zh-tw\":\"複製成功 (*^▽^*)\"}},\"code_block\":{\"expand\":true},\"icon_font\":\"4552607_4k4bc36ef96\",\"outdate\":{\"daysago\":180,\"enable\":false,\"message\":{\"en\":\"This article was last updated on {time}. Please note that the content may no longer be applicable.\",\"ja\":\"この記事は最終更新日：{time}。記載内容が現在有効でない可能性がありますのでご注意ください。\",\"pt-br\":\"Este artigo foi atualizado pela última vez em {time}. Observe que o conteúdo pode não ser mais aplicável.\",\"zh-cn\":\"本文最后更新于 {time}，请注意文中内容可能已不适用。\",\"zh-tw\":\"本文最後更新於 {time}，請注意文中內容可能已不適用。\"}}}");
@@ -33,12 +33,12 @@
     type="font/woff2"
     crossorigin="anonymous"
   /><link rel="stylesheet" href="/css/loader.css" /><meta property="og:type" content="website" />
-  <meta property="og:title" content="Astrbot的配置使用与研究 | Tairitsusk" />
+  <meta property="og:title" content="自建 Tailscale DERP 节点不完全指北 | Tairitsusk" />
   <meta
     property="og:description"
     content="一只雪球"
   />
-  <meta property="og:url" content="http://localhost:1313/post/astrbot/" />
+  <meta property="og:url" content="http://localhost:1313/post/tailscale-derp/" />
   <meta
     property="og:site_name"
     content="Tairitsuskの wiki"
@@ -48,8 +48,8 @@
     content="/"
   />
   <meta property="article:author" content="Tairitsusk" />
-  <meta property="article:published_time" content="2026-05-07T15:06:44&#43;08:00" />
-  <meta property="article:modified_time" content="2026-05-07T15:06:44&#43;08:00" /><meta name="twitter:card" content="summary" />
+  <meta property="article:published_time" content="2026-08-11T14:11:52&#43;08:00" />
+  <meta property="article:modified_time" content="2026-08-11T14:11:52&#43;08:00" /><meta name="twitter:card" content="summary" />
   <meta name="twitter:image" content="/" />
 <link rel="shortcut icon" href="/favicon.ico"><link rel="stylesheet" href="/css/main.css" /><link
     rel="preload"
@@ -124,9 +124,9 @@ This article does not have a corresponding language version
       </a><a id="main-nav-toggle" class="nav-icon" aria-label="Toggle navigation" role="button"></a>
   </nav>
   <nav id="sub-nav" aria-label="Secondary navigation"></nav></div>
-<header id="header" aria-label="Site header"><picture></picture><img crossorigin="anonymous" fetchpriority="high" src="/images/banner1.webp" alt="Astrbot的配置使用与研究"><div id="header-outer">
+<header id="header" aria-label="Site header"><picture></picture><img crossorigin="anonymous" fetchpriority="high" src="/images/banner1.webp" alt="自建 Tailscale DERP 节点不完全指北"><div id="header-outer">
     <div id="header-title"><span id="logo">
-            <h1 data-aos="slide-up">Astrbot的配置使用与研究</h1>
+            <h1 data-aos="slide-up">自建 Tailscale DERP 节点不完全指北</h1>
           </span><h2 id="subtitle-wrap" data-aos="slide-down"></h2></div>
   </div>
 </header><div id="content"
@@ -140,15 +140,19 @@ This article does not have a corresponding language version
 <div class="sidebar-toc-wrapper toc-div-class">
   <nav id="TableOfContents">
   <ul>
-    <li><a href="#相关链接">相关链接</a></li>
-    <li><a href="#使用雨云的云应用服务部署">使用雨云的云应用服务部署</a></li>
-    <li><a href="#使用阿里云服务器部署">使用阿里云服务器部署</a></li>
-    <li><a href="#使用本地linux部署">使用本地linux部署</a>
+    <li><a href="#什么是-tailscale">什么是 Tailscale？</a></li>
+    <li><a href="#为什么值得自建-derp">为什么值得自建 DERP</a></li>
+    <li><a href="#架构与原理">架构与原理</a></li>
+    <li><a href="#快速开始">快速开始</a>
       <ul>
-        <li><a href="#安装docker">安装docker</a></li>
-        <li><a href="#使用docker部署">使用docker部署</a></li>
+        <li><a href="#准备工作">准备工作</a></li>
+        <li><a href="#第一步云服务器加入你的-tailscale-网络">第一步：云服务器加入你的 Tailscale 网络</a></li>
+        <li><a href="#第二步部署-derp-容器">第二步：部署 DERP 容器</a></li>
       </ul>
     </li>
+    <li><a href="#第三步在-tailscale-控制台注册你的节点">第三步：在 Tailscale 控制台注册你的节点</a></li>
+    <li><a href="#第四步验证是否生效">第四步：验证是否生效</a></li>
+    <li><a href="#总结">总结</a></li>
   </ul>
 </nav>
 </div></div>
@@ -244,99 +248,168 @@ This article does not have a corresponding language version
     class="article-date-link icon-calendar"
     data-aos="zoom-in"
   >
-    <time datetime="2026-05-07 15:06:44 &#43;0800 CST" itemprop="datePublished"
-      >2026-05-07</time
+    <time datetime="2026-08-11 14:11:52 &#43;0800 CST" itemprop="datePublished"
+      >2026-08-11</time
     >
     <time style="display: none;" id="post-update-time"
-      >2026-05-07</time
+      >2026-08-11</time
     >
   </span></div>
-</div><div class="hr-line"></div><div class="e-content article-entry" itemprop="articleBody"><h1 id="astrbot的配置使用与研究">
-<a class="header-anchor" href="#astrbot%e7%9a%84%e9%85%8d%e7%bd%ae%e4%bd%bf%e7%94%a8%e4%b8%8e%e7%a0%94%e7%a9%b6"></a>
-astrbot的配置使用与研究
-</h1><h2 id="相关链接">
-<a class="header-anchor" href="#%e7%9b%b8%e5%85%b3%e9%93%be%e6%8e%a5"></a>
-相关链接
-</h2><p><a href="https://docs.astrbot.app/">astrbot官方文档</a></p>
-<p><a href="https://napneko.github.io/">napcat官方文档</a></p>
-<p><a href="https://app.rainyun.com/">雨云云服务官网</a></p>
-<h2 id="使用雨云的云应用服务部署">
-<a class="header-anchor" href="#%e4%bd%bf%e7%94%a8%e9%9b%a8%e4%ba%91%e7%9a%84%e4%ba%91%e5%ba%94%e7%94%a8%e6%9c%8d%e5%8a%a1%e9%83%a8%e7%bd%b2"></a>
-使用雨云的云应用服务部署
-</h2><p>特别注意 使用雨云云应用部署时 对应的内网服务url如下图<img src="image-20260412104132487.webp" alt=""></p>
-<p>在napcat的网络配置下 添加Websocket客户端的url应填入<code>ws://svc-astrbot-dehb5s:6199/ws</code></p>
-<h2 id="使用阿里云服务器部署">
-<a class="header-anchor" href="#%e4%bd%bf%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91%e6%9c%8d%e5%8a%a1%e5%99%a8%e9%83%a8%e7%bd%b2"></a>
-使用阿里云服务器部署
-</h2><p>使用ssh连接到云服务器 <code>ssh root@你的公网IP地址</code></p>
-<p>参考<a href="https://www.bilibili.com/video/BV13rXKBPEFb/?spm_id_from=333.337.search-card.all.click&amp;vd_source=bebe80cfa65c7db1ab5baf08c2d68493">AstrBot安装使用指南（终极版)</a></p>
-<h2 id="使用本地linux部署">
-<a class="header-anchor" href="#%e4%bd%bf%e7%94%a8%e6%9c%ac%e5%9c%b0linux%e9%83%a8%e7%bd%b2"></a>
-使用本地linux部署
-</h2><p>本文使用 Windows11 下的 Wsl2 安装<code>Ubuntu22.04</code>进行部署</p>
-<h3 id="安装docker">
-<a class="header-anchor" href="#%e5%ae%89%e8%a3%85docker"></a>
-安装docker
+</div><div class="hr-line"></div><div class="e-content article-entry" itemprop="articleBody"><h1 id="自建-tailscale-derp-节点不完全指北">
+<a class="header-anchor" href="#%e8%87%aa%e5%bb%ba-tailscale-derp-%e8%8a%82%e7%82%b9%e4%b8%8d%e5%ae%8c%e5%85%a8%e6%8c%87%e5%8c%97"></a>
+自建 Tailscale DERP 节点不完全指北
+</h1><p>Tsk家里部署了一台私有服务器，负责相册备份。平时在局域网内用得很舒服，但一直没考虑过外网异地访问的问题。 最近了解到利用Tailscale组建虚拟局域网的方式来进行外网访问 安全性高还方便 正好还有一台学生优惠白嫖的2c2g阿里云服务器一直吃灰(懒狗懒得用bushi</p>
+<p><strong>Tailscale</strong> 优先走 P2P 直连，网络好的时候能跑满家里的上行带宽；可一旦P2P打洞失败，流量就会自动切到官方部署在海外的 DERP 中转节点，延迟 200ms+，速度显然无法接受。诶？ 正好我能把一台有公网 IP 的云服务器变成<strong>私人专属的 DERP 节点</strong>，大幅降低无法P2P打洞情况下的连接延迟。</p>
+<p>本文记录完整的部署流程，包括如何做到&quot;防白嫖&quot;——只允许你自己网络里的设备使用这台中转站。</p>
+<p>本文搭建特点： 无需备案 使用docker容器部署 部署方式简单</p>
+<h2 id="什么是-tailscale">
+<a class="header-anchor" href="#%e4%bb%80%e4%b9%88%e6%98%af-tailscale"></a>
+什么是 Tailscale？
+</h2><p>Tailscale 是一款基于 WireGuard 协议的组网工具，它把&quot;组建虚拟局域网&quot;这件事简化到了极致：在每台设备上安装客户端、登录同一个账号，这些设备就会自动组成一张加密的私有虚拟网络（Mesh VPN），无论它们分散在家庭、公司还是不同的城市。</p>
+<p>它的核心特点可以概括为：</p>
+<ul>
+<li><strong>零配置组网</strong>：不需要公网 IP，也不需要去路由器上做端口转发；</li>
+<li><strong>端到端加密</strong>：设备间的流量基于 WireGuard 加密，数据平面不依赖第三方明文中转；</li>
+<li><strong>跨平台</strong>：Windows、macOS、Linux、Android、iOS 都有客户端，电视盒子也能装；</li>
+<li><strong>个人使用免费</strong>：普通家庭用户基本够用。</li>
+</ul>
+<p>理解 Tailscale 的架构，可以把它分成两个平面：</p>
+<ul>
+<li><strong>控制平面</strong>：由官方协调服务器负责设备发现、密钥分发和访问策略下发，它不承载你的业务数据；</li>
+<li><strong>数据平面</strong>：设备之间的数据流量会优先尝试 <strong>P2P 直连</strong>（通过 NAT 打洞建立点对点通道），打洞失败时再经 <strong>DERP 中继服务器</strong>转发。</li>
+</ul>
+<p>DERP 全称是 <em>Designated Encrypted Relay for Packets</em>（数据包指定加密中继），也就是 Tailscale 内置的加密中继节点。问题恰恰出在这里：默认的中继节点部署在海外，对国内用户来说延迟高、速度慢。这正是我们接下来要自建专属 DERP 的原因。</p>
+<h2 id="为什么值得自建-derp">
+<a class="header-anchor" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e5%80%bc%e5%be%97%e8%87%aa%e5%bb%ba-derp"></a>
+为什么值得自建 DERP
+</h2><p>Tailscale 的连接策略是&quot;先直连，失败再中转&quot;：</p>
+<ul>
+<li><strong>P2P 直连成功</strong>：客户端之间点对点通信，跑满你家宽带的实际上行速度（30M-50M）；</li>
+<li><strong>打洞失败</strong>：自动切换 DERP 中转，官方节点远在海外，延迟高、速度慢；</li>
+<li><strong>自建 DERP 之后</strong>：打洞失败时流量无缝切换到你的云服务器，延迟通常只有 20-40ms，连接非常稳定。</li>
+</ul>
+<p>也就是说，你同时拿到两种能力：网络好时满速直连，网络差时低延迟兜底。这就是&quot;P2P 与中转完美结合&quot;的含义。</p>
+<h2 id="架构与原理">
+<a class="header-anchor" href="#%e6%9e%b6%e6%9e%84%e4%b8%8e%e5%8e%9f%e7%90%86"></a>
+架构与原理
+</h2><p><img src="image-20260811175640381.png" alt="image-20260811175640381"></p>
+<p>防白嫖的核心设计：云服务器上同时运行 <strong>Tailscale 客户端</strong> 和 <strong>DERP 容器</strong>。容器通过挂载宿主机的 <code>tailscaled.sock</code> 与 Tailscale 进程通信。当有陌生设备试图连接你的 443 端口时，DERP 会去核对对方的公钥是否属于你的 Tailscale 网络——不在名单里，直接 <code>Connection Refused</code>。</p>
+<h2 id="快速开始">
+<a class="header-anchor" href="#%e5%bf%ab%e9%80%9f%e5%bc%80%e5%a7%8b"></a>
+快速开始
+</h2><h3 id="准备工作">
+<a class="header-anchor" href="#%e5%87%86%e5%a4%87%e5%b7%a5%e4%bd%9c"></a>
+准备工作
 </h3><ol>
-<li>更新apt包索引并安装依赖包</li>
+<li>
+<p>** 域名**</p>
+<p>购买好一个域名(域名购买可在阿里云、腾讯云处购买 个人使用没有必要买.com域名 啥便宜买啥就行)</p>
+<p>并准备一个子域名（如 <code>derp.yourdomain.com</code>），把 A 记录解析到云服务器的公网 IP 操作如下</p>
+<p><img src="image-20260811174829936.png" alt="绑定购买好的域名"></p>
+<p>绑定好你的域名后 打开相应的域名管理界面 转到DNS管理界面</p>
+<p><img src="image-20260811174957473.png" alt="域名管理界面"></p>
+<p>在对应域名的DNS配置中 添加一条记录(这里我使用的是Cloudflare的DNS解析服务 如果使用其他服务请自行研究)</p>
+<p><img src="image-20260811175127802.png" alt="添加DNS解析记录"></p>
+</li>
 </ol>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-get update
-</span></span><span class="line"><span class="cl">sudo apt-get install <span class="se">\
-</span></span></span><span class="line"><span class="cl">    ca-certificates <span class="se">\
-</span></span></span><span class="line"><span class="cl">    curl <span class="se">\
-</span></span></span><span class="line"><span class="cl">    gnupg <span class="se">\
-</span></span></span><span class="line"><span class="cl">    lsb-release
-</span></span></code></pre></div><ol start="2">
-<li>添加 Docker 的官方 GPG 密钥</li>
+<p><img src="image-20260811141433427.png" alt="DNS解析记录添加"></p>
+<ol start="2">
+<li><strong>云厂商安全组</strong></li>
 </ol>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo mkdir -m <span class="m">0755</span> -p /etc/apt/keyrings
-</span></span><span class="line"><span class="cl">curl -fsSL https://download.docker.com/linux/ubuntu/gpg <span class="p">|</span> sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-</span></span></code></pre></div><ol start="3">
-<li>设置 Docker 仓库</li>
+<p>（以阿里云为例），放行三个端口：</p>
+<p>TCP <strong>3443</strong>：用于 DERP 节点的加密流量转发 核心通信 加密主通道</p>
+<p><em>UDP</em> 3478：用于 Tailscale 的 STUN 测速打洞（千万不能配成 TCP 这里作者不小心配成TCP排查了好一会T-T）</p>
+<p><em>UDP</em> 41641：用于Tailscale打洞的端口</p>
+<p><img src="image-20260811175435456.png" alt="端口放行"></p>
+<ol start="3">
+<li>云服务器需要能运行 Docker 和 Docker Compose 如何安装Docker和使用 Docker Compose 请自行搜索</li>
 </ol>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">echo</span> <span class="se">\
-</span></span></span><span class="line"><span class="cl">  <span class="s2">&#34;deb [arch=</span><span class="k">$(</span>dpkg --print-architecture<span class="k">)</span><span class="s2"> signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-</span></span></span><span class="line"><span class="cl"><span class="s2">  </span><span class="k">$(</span>lsb_release -cs<span class="k">)</span><span class="s2"> stable&#34;</span> <span class="p">|</span> sudo tee /etc/apt/sources.list.d/docker.list &gt; /dev/null
-</span></span></code></pre></div><ol start="4">
-<li>安装 Docker Engine</li>
-</ol>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-get update
-</span></span><span class="line"><span class="cl">sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-</span></span></code></pre></div><ol start="5">
-<li>配置Docker镜像源</li>
-</ol>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo mkdir -p /etc/docker
-</span></span><span class="line"><span class="cl">sudo nano /etc/docker/daemon.json
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">填入以下内容
-</span></span><span class="line"><span class="cl"><span class="o">{</span>
-</span></span><span class="line"><span class="cl">  <span class="s2">&#34;registry-mirrors&#34;</span>: <span class="o">[</span>
-</span></span><span class="line"><span class="cl">    <span class="s2">&#34;https://docker.m.daocloud.io&#34;</span>,
-</span></span><span class="line"><span class="cl">    <span class="s2">&#34;https://docker.nju.edu.cn&#34;</span>,
-</span></span><span class="line"><span class="cl">    <span class="s2">&#34;https://mirror.baidubce.com&#34;</span>
-</span></span><span class="line"><span class="cl">  <span class="o">]</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">重新读取配置并重启 Docker 服务
-</span></span><span class="line"><span class="cl">sudo systemctl daemon-reload
-</span></span><span class="line"><span class="cl">sudo systemctl restart docker
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">测试是否安装成功
-</span></span><span class="line"><span class="cl">sudo docker run hello-world
-</span></span></code></pre></div><h3 id="使用docker部署">
-<a class="header-anchor" href="#%e4%bd%bf%e7%94%a8docker%e9%83%a8%e7%bd%b2"></a>
-使用docker部署
-</h3><p>参考<a href="https://docs.astrbot.app/deploy/astrbot/docker.html">Astrbot Docker部署方式</a></p>
+<h3 id="第一步云服务器加入你的-tailscale-网络">
+<a class="header-anchor" href="#%e7%ac%ac%e4%b8%80%e6%ad%a5%e4%ba%91%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%8a%a0%e5%85%a5%e4%bd%a0%e7%9a%84-tailscale-%e7%bd%91%e7%bb%9c"></a>
+第一步：云服务器加入你的 Tailscale 网络
+</h3><p>云服务器和私有服务器分别执行以下命令 登录tailscale账号并绑定设备</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl -fsSL https://tailscale.com/install.sh <span class="p">|</span> sh
+</span></span><span class="line"><span class="cl">sudo tailscale up
+</span></span></code></pre></div><p>按提示完成登录后，云服务器就和家里的服务器处于同一个虚拟局域网了</p>
+<h3 id="第二步部署-derp-容器">
+<a class="header-anchor" href="#%e7%ac%ac%e4%ba%8c%e6%ad%a5%e9%83%a8%e7%bd%b2-derp-%e5%ae%b9%e5%99%a8"></a>
+第二步：部署 DERP 容器
+</h3><p>在当前用户目录下创建一个文件夹(如tailscale-derp 来存放相关容器文件)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">mkdir -p ~/tailscale-derp <span class="o">&amp;&amp;</span> <span class="nb">cd</span> ~/tailscale-derp 
+</span></span><span class="line"><span class="cl">nano docker-compose.yml <span class="c1"># 创建docker-compose文件并编辑</span>
+</span></span></code></pre></div><p>粘贴以下内容（<strong>记得替换自己的域名</strong>）：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">services</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">derper</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">ghcr.io/yangchuansheng/derper:v1.98.8</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l">derper</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l">always</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="s2">&#34;3443:443&#34;</span><span class="w">      </span><span class="c"># 避开国内强制备案拦截，将容器443映射到宿主机3443</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="s2">&#34;3478:3478/udp&#34;</span><span class="w"> </span><span class="c"># STUN 穿透打洞专用端口</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">/var/run/tailscale/tailscaled.sock:/var/run/tailscale/tailscaled.sock</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">./certs:/app/certs</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">DERP_DOMAIN=derp.yourdomain.com  </span><span class="w"> </span><span class="c"># 替换为你的域名</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">DERP_VERIFY_CLIENTS=true         </span><span class="w"> </span><span class="c"># 开启防白嫖验证</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">DERP_CERT_MODE=manual            </span><span class="w"> </span><span class="c"># 手动申请 SSL 证书</span><span class="w">
+</span></span></span></code></pre></div><p>保存并退出后</p>
+<p>执行以下命令使用 OpenSSL 手动签发本地证书</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">mkdir -p ~/tailscale-derp/certs <span class="o">&amp;&amp;</span> <span class="nb">cd</span> ~/tailscale-derp
+</span></span><span class="line"><span class="cl">openssl req -x509 -newkey rsa:4096 -sha256 -days <span class="m">3650</span> -nodes <span class="se">\
+</span></span></span><span class="line"><span class="cl">  -keyout certs/derp.你的域名.com.key -out certs/derp.你的域名.com.crt <span class="se">\
+</span></span></span><span class="line"><span class="cl">  -subj <span class="s2">&#34;/CN=derp.你的域名.com&#34;</span> -addext <span class="s2">&#34;subjectAltName=DNS:derp.你的域名.com&#34;</span>
+</span></span></code></pre></div><p>启动容器：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker compose up -d
+</span></span></code></pre></div><p>这里为了避免备案和阿里云的拦截 使用 OpenSSL 手动签发本地证书，避开常规 443 端口的 Let&rsquo;s Encrypt 验证限制</p>
+<h2 id="第三步在-tailscale-控制台注册你的节点">
+<a class="header-anchor" href="#%e7%ac%ac%e4%b8%89%e6%ad%a5%e5%9c%a8-tailscale-%e6%8e%a7%e5%88%b6%e5%8f%b0%e6%b3%a8%e5%86%8c%e4%bd%a0%e7%9a%84%e8%8a%82%e7%82%b9"></a>
+第三步：在 Tailscale 控制台注册你的节点
+</h2><p>登录 Tailscale 管理后台，进入 <strong>Access Controls</strong> 页面；</p>
+<p><img src="image-20260811173045812.png" alt="image-20260811173045812"></p>
+<p>在 JSON 配置的末尾（注意与前面的条目用逗号分隔）加入：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="s2">&#34;derpMap&#34;</span><span class="err">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;OmitDefaultRegions&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;Regions&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;900&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;RegionID&#34;</span><span class="p">:</span> <span class="mi">900</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;RegionCode&#34;</span><span class="p">:</span> <span class="s2">&#34;Aliyun&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;RegionName&#34;</span><span class="p">:</span> <span class="s2">&#34;My Aliyun DERP&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;Nodes&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;Name&#34;</span><span class="p">:</span> <span class="s2">&#34;1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;RegionID&#34;</span><span class="p">:</span> <span class="mi">900</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;HostName&#34;</span><span class="p">:</span> <span class="s2">&#34;derp.yourdomain.com&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;DERPPort&#34;</span><span class="p">:</span> <span class="mi">443</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;IPv4&#34;</span><span class="p">:</span> <span class="s2">&#34;你的云服务器公网IP&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>点击 Save。官方服务器会把新的节点信息同步给所有客户端。</p>
+<p><img src="image-20260811173319066.png" alt=""></p>
+<p><strong>关于 <code>OmitDefaultRegions</code></strong>：设为 <code>true</code> 会彻底禁用官方海外节点、强制只走你的云服务器；设为 <code>false</code> 则保留官方节点作为最后兜底。建议先用 <code>false</code> 测试，确认自己的节点稳定后再决定是否收紧。</p>
+<h2 id="第四步验证是否生效">
+<a class="header-anchor" href="#%e7%ac%ac%e5%9b%9b%e6%ad%a5%e9%aa%8c%e8%af%81%e6%98%af%e5%90%a6%e7%94%9f%e6%95%88"></a>
+第四步：验证是否生效
+</h2><p>回到家庭服务器或笔记本上执行：</p>
+<p><code>tailscale ping &lt;云服务器Tailscale IP&gt;</code></p>
+<p>如果返回信息里带有 <code>via DERP(Aliyun)</code> 之类的字样，说明流量已经走你的专属中转通道了。也可以运行 <code>tailscale netcheck</code> 查看更详细的网络诊断信息。</p>
+<h2 id="总结">
+<a class="header-anchor" href="#%e6%80%bb%e7%bb%93"></a>
+总结
+</h2><p>自建 DERP 节点 = 把&quot;打洞失败后的兜底通道&quot;从遥远的官方服务器搬到自己的云服务器上。它的价值在于两者兼得：P2P 成功时满速直连，失败时低延迟中转，全程自动切换，不需要手动干预。配合公钥校验机制，这台中转站只为你自己的网络服务，安全又省心。</p>
+<p>如果你也有一台吃灰的云服务器和一个需要异地访问的家用服务器，为啥不试试呢（乐</p>
 </div>
     <footer class="article-footer"><a
           data-aos="zoom-in"
-          href="/post/astrbot/#comments"
+          href="/post/tailscale-derp/#comments"
           class="article-comment-link"
         >
           <span
             class="post-comments-count waline-comment-count"
-            data-path="/post/astrbot/"
+            data-path="/post/tailscale-derp/"
             itemprop="commentCount"
           ></span>
           Comments
@@ -346,7 +419,7 @@ astrbot的配置使用与研究
         >
           <span
             class="waline-pageview-count"
-            data-path="/post/astrbot/"
+            data-path="/post/tailscale-derp/"
             >0</span
           >
           <em class="post-meta-item-text">Readings</em>
@@ -358,29 +431,17 @@ astrbot的配置使用与研究
     aria-label="Article navigation"
     data-aos="fade-up"
   ><div class="article-nav-link-wrap left"><img
-              data-src="https://web-tlias-1023.oss-cn-hangzhou.aliyuncs.com/01805ccd-2650-4cac-ab2b-c4960239437f.jpg"
+              data-src="https://web-tlias-1023.oss-cn-hangzhou.aliyuncs.com/38cf3312-e1ec-4770-b46d-071acdaa7559.png"
               data-sizes="auto"
-              alt="Hugo"
+              alt="Astrbot的配置使用与研究"
               class="lazyload"
             /><a
-          href="/post/hugo/"
-          aria-label="Prev:Hugo"
-          title="Prev:Hugo"
+          href="/post/astrbot/"
+          aria-label="Prev:Astrbot的配置使用与研究"
+          title="Prev:Astrbot的配置使用与研究"
         ></a>
         <div class="article-nav-caption">Prev</div>
-        <h3 class="article-nav-title">Hugo</h3>
-      </div><div class="article-nav-link-wrap right"><img
-              data-src="https://web-tlias-1023.oss-cn-hangzhou.aliyuncs.com/a04d5116-f1e1-451c-8ed9-3833a2e4009f.jpg"
-              data-sizes="auto"
-              alt="Tailscale Derp"
-              class="lazyload"
-            /><a
-          href="/post/tailscale-derp/"
-          aria-label="Next:Tailscale Derp"
-          title="Next:Tailscale Derp"
-        ></a>
-        <div class="article-nav-caption">Next</div>
-        <h3 class="article-nav-title">Tailscale Derp</h3>
+        <h3 class="article-nav-title">Astrbot的配置使用与研究</h3>
       </div></nav></article><section id="comments" data-aos="fade-up">
 <div class="comment-header"><h2 class="comment-title">Leave a comment</h2>
   <div class="comment-selector">
@@ -423,15 +484,19 @@ astrbot的配置使用与研究
 <div class="sidebar-toc-wrapper toc-div-class">
   <nav id="TableOfContents">
   <ul>
-    <li><a href="#相关链接">相关链接</a></li>
-    <li><a href="#使用雨云的云应用服务部署">使用雨云的云应用服务部署</a></li>
-    <li><a href="#使用阿里云服务器部署">使用阿里云服务器部署</a></li>
-    <li><a href="#使用本地linux部署">使用本地linux部署</a>
+    <li><a href="#什么是-tailscale">什么是 Tailscale？</a></li>
+    <li><a href="#为什么值得自建-derp">为什么值得自建 DERP</a></li>
+    <li><a href="#架构与原理">架构与原理</a></li>
+    <li><a href="#快速开始">快速开始</a>
       <ul>
-        <li><a href="#安装docker">安装docker</a></li>
-        <li><a href="#使用docker部署">使用docker部署</a></li>
+        <li><a href="#准备工作">准备工作</a></li>
+        <li><a href="#第一步云服务器加入你的-tailscale-网络">第一步：云服务器加入你的 Tailscale 网络</a></li>
+        <li><a href="#第二步部署-derp-容器">第二步：部署 DERP 容器</a></li>
       </ul>
     </li>
+    <li><a href="#第三步在-tailscale-控制台注册你的节点">第三步：在 Tailscale 控制台注册你的节点</a></li>
+    <li><a href="#第四步验证是否生效">第四步：验证是否生效</a></li>
+    <li><a href="#总结">总结</a></li>
   </ul>
 </nav>
 </div></div>
@@ -550,9 +615,9 @@ astrbot的配置使用与研究
   <div><script data-pjax>
         window.REIMU_POST = {
           author: "Tairitsusk",
-          title: "Astrbot的配置使用与研究",
-          url: "http:\/\/localhost:1313\/post\/astrbot\/",
-          description: "\rastrbot的配置使用与研究\r相关链接\rastrbot官方文档\nnapcat官方文档\n雨云云服务官网\n使用雨云的云应用服务部署\r特别注意 使用雨云云应用部署时 对应的内网服务url如下图\n在napcat的网络配置下 添加Websocket客户端的url应填入ws:\/\/svc-astrbot-dehb5s:6199\/ws\n使用阿里云服务器部署\r使用ssh连接到云服务器 ssh root@你的公网IP地址\n参考AstrBot安装使用指南（终极版)\n使用本地linux部署\r本文使用 Windows11 下的 Wsl2 安装Ubuntu22.04进行部署\n安装docker\r更新apt包索引并安装依 …",
+          title: "自建 Tailscale DERP 节点不完全指北",
+          url: "http:\/\/localhost:1313\/post\/tailscale-derp\/",
+          description: "\r自建 Tailscale DERP 节点不完全指北\rTsk家里部署了一台私有服务器，负责相册备份。平时在局域网内用得很舒服，但一直没考虑过外网异地访问的问题。 最近了解到利用Tailscale组建虚拟局域网的方式来进行外网访问 安全性高还方便 正好还有一台学生优惠白嫖的2c2g阿里云服务器一直吃灰(懒狗懒得用bushi\nTailscale 优先走 P2P 直连，网络好的时候能跑满家里的上行带宽；可一旦P2P打洞失败，流量就会自动切到官方部署在海外的 DERP 中转节点，延迟 200ms\u002b，速度显然无法接受。诶？ 正好我能把一台有公网 IP 的云服务器变成私人专属的 DERP 节点，大幅降低无 …",
           cover: "http:\/\/localhost:1313\/images\/banner1.webp",
         };
       </script><script src="/js/insert_highlight.js" data-pjax ></script><script src="/js/tabs.js" data-pjax defer></script><script type="module" data-pjax>const PhotoSwipeLightbox = (await safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe-lightbox.esm.min.js", "sha384-DiL6M\/gG\u002bwmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF\/N6lrZi\/")).default;const initPswp = (gallery, children) => {

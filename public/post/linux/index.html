@@ -140,11 +140,16 @@ This article does not have a corresponding language version
 <div class="sidebar-toc-wrapper toc-div-class">
   <nav id="TableOfContents">
   <ul>
-    <li><a href="#重设wsl中linux系统用户的密码">重设WSL中Linux系统用户的密码</a></li>
+    <li><a href="#如何重设wsl中linux系统用户的密码">如何重设WSL中Linux系统用户的密码</a></li>
     <li><a href="#系统内置命令">系统内置命令</a></li>
     <li><a href="#apt包管理器">APT包管理器</a></li>
     <li><a href="#性能监控htop">性能监控htop</a></li>
-    <li><a href="#docker">Docker</a></li>
+    <li><a href="#docker">Docker</a>
+      <ul>
+        <li><a href="#容器相关">容器相关</a></li>
+        <li><a href="#镜像相关">镜像相关</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
 </div></div>
@@ -160,7 +165,7 @@ This article does not have a corresponding language version
 </div>
 <div class="sidebar-state">
   <div class="sidebar-state-article">
-    <div>Posts</div><div class="sidebar-state-number">9</div>
+    <div>Posts</div><div class="sidebar-state-number">10</div>
   </div>
   <a class="sidebar-state-category" href="/categories/" aria-label="sidebar-state-category-link">
     <div>Categories</div>
@@ -250,9 +255,9 @@ This article does not have a corresponding language version
 </div><div class="hr-line"></div><div class="e-content article-entry" itemprop="articleBody"><h1 id="linux的使用">
 <a class="header-anchor" href="#linux%e7%9a%84%e4%bd%bf%e7%94%a8"></a>
 Linux的使用
-</h1><h2 id="重设wsl中linux系统用户的密码">
-<a class="header-anchor" href="#%e9%87%8d%e8%ae%bewsl%e4%b8%adlinux%e7%b3%bb%e7%bb%9f%e7%94%a8%e6%88%b7%e7%9a%84%e5%af%86%e7%a0%81"></a>
-重设WSL中Linux系统用户的密码
+</h1><h2 id="如何重设wsl中linux系统用户的密码">
+<a class="header-anchor" href="#%e5%a6%82%e4%bd%95%e9%87%8d%e8%ae%bewsl%e4%b8%adlinux%e7%b3%bb%e7%bb%9f%e7%94%a8%e6%88%b7%e7%9a%84%e5%af%86%e7%a0%81"></a>
+如何重设WSL中Linux系统用户的密码
 </h2><p>以安装ubuntu22.04版本为例</p>
 <p>在windows终端中输入<code>ubuntu2204 config --default-user root</code> 将wsl登录用户切换为root</p>
 <p>在wsl系统中输入<code>passwd 用户名</code> 修改用户密码</p>
@@ -263,7 +268,12 @@ Linux的使用
 <h2 id="系统内置命令">
 <a class="header-anchor" href="#%e7%b3%bb%e7%bb%9f%e5%86%85%e7%bd%ae%e5%91%bd%e4%bb%a4"></a>
 系统内置命令
-</h2><h2 id="apt包管理器">
+</h2><p><code>ls</code>查看当前目录</p>
+<p><code>pwd</code>查看当前工作目录路径</p>
+<p><code>clear</code>清屏</p>
+<p><code>cp</code> 复制文件</p>
+<p><code>rm</code> 删除文件</p>
+<h2 id="apt包管理器">
 <a class="header-anchor" href="#apt%e5%8c%85%e7%ae%a1%e7%90%86%e5%99%a8"></a>
 APT包管理器
 </h2><p>更新软件清单 <code>sudo apt update</code></p>
@@ -280,15 +290,27 @@ APT包管理器
 <h2 id="docker">
 <a class="header-anchor" href="#docker"></a>
 Docker
-</h2><p>查看当前<strong>正在运行</strong>的容器 <code>docker ps</code>  (加上-a 选项查看所有容器)</p>
+</h2><h3 id="容器相关">
+<a class="header-anchor" href="#%e5%ae%b9%e5%99%a8%e7%9b%b8%e5%85%b3"></a>
+容器相关
+</h3><hr>
+<p>查看当前<strong>正在运行</strong>的容器 <code>docker ps -a</code>  (加上-a 选项查看所有容器)</p>
 <p>停止容器 <code>docker stop &lt;容器id或名称&gt;</code></p>
 <p>唤醒容器 <code>docker start &lt;容器id或名称&gt;</code></p>
 <p>删除容器 <code>docker rm &lt;容器id或名称&gt;</code> 或<code>docker rm -f &lt;容器id或名称&gt;</code> (强制删除 不用先停止再删除)</p>
 <p>一键删除所有已经停止运行的容器 <code>docker container prune</code></p>
 <p>暴力清空：强行删除本地【所有】容器（无论是否在运行） <code>docker rm -f $(docker ps -aq)</code></p>
-<p>只执行 <code>docker rm</code> 只是删除了<strong>运行实例（容器）</strong>，下载下来的<strong>基础镜像</strong>（Image）依然会占用你的 WSL 虚拟硬盘空间</p>
+<p>修改docker-compose文件后重启容器 <code>docker compose up -d</code></p>
+<p>重启容器命令  <code>docker compose -f astrbot.yml restart</code>  (-f 用于指定文件 适用于命名非docker-compose.yml的docker配置文件)</p>
+<hr>
+<h3 id="镜像相关">
+<a class="header-anchor" href="#%e9%95%9c%e5%83%8f%e7%9b%b8%e5%85%b3"></a>
+镜像相关
+</h3><p>只执行 <code>docker rm</code> 只是删除了<strong>运行实例（容器）</strong>，下载下来的<strong>基础镜像</strong>（Image）依然会占用你的 WSL 虚拟硬盘空间</p>
+<hr>
 <p>查看镜像列表和id <code>docker images</code></p>
 <p>彻底删除镜像 <code>docker rmi &lt;镜像ID&gt;</code></p>
+<hr>
 </div>
     <footer class="article-footer"><a
           data-aos="zoom-in"
@@ -319,7 +341,7 @@ Docker
     aria-label="Article navigation"
     data-aos="fade-up"
   ><div class="article-nav-link-wrap left"><img
-              data-src="https://web-tlias-1023.oss-cn-hangzhou.aliyuncs.com/38cf3312-e1ec-4770-b46d-071acdaa7559.png"
+              data-src="https://web-tlias-1023.oss-cn-hangzhou.aliyuncs.com/8cb00064-4c9d-459c-82b5-bcbd69f836fc.jpg"
               data-sizes="auto"
               alt="Claude Code"
               class="lazyload"
@@ -331,7 +353,7 @@ Docker
         <div class="article-nav-caption">Prev</div>
         <h3 class="article-nav-title">Claude Code</h3>
       </div><div class="article-nav-link-wrap right"><img
-              data-src="https://web-tlias-1023.oss-cn-hangzhou.aliyuncs.com/8cb00064-4c9d-459c-82b5-bcbd69f836fc.jpg"
+              data-src="https://web-tlias-1023.oss-cn-hangzhou.aliyuncs.com/a8f90204-f252-4e3e-8a33-111169eea0c7.png"
               data-sizes="auto"
               alt="Hugo"
               class="lazyload"
@@ -384,11 +406,16 @@ Docker
 <div class="sidebar-toc-wrapper toc-div-class">
   <nav id="TableOfContents">
   <ul>
-    <li><a href="#重设wsl中linux系统用户的密码">重设WSL中Linux系统用户的密码</a></li>
+    <li><a href="#如何重设wsl中linux系统用户的密码">如何重设WSL中Linux系统用户的密码</a></li>
     <li><a href="#系统内置命令">系统内置命令</a></li>
     <li><a href="#apt包管理器">APT包管理器</a></li>
     <li><a href="#性能监控htop">性能监控htop</a></li>
-    <li><a href="#docker">Docker</a></li>
+    <li><a href="#docker">Docker</a>
+      <ul>
+        <li><a href="#容器相关">容器相关</a></li>
+        <li><a href="#镜像相关">镜像相关</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
 </div></div>
@@ -404,7 +431,7 @@ Docker
 </div>
 <div class="sidebar-state">
   <div class="sidebar-state-article">
-    <div>Posts</div><div class="sidebar-state-number">9</div>
+    <div>Posts</div><div class="sidebar-state-number">10</div>
   </div>
   <a class="sidebar-state-category" href="/categories/" aria-label="sidebar-state-category-link">
     <div>Categories</div>
@@ -509,7 +536,7 @@ Docker
           author: "Tairitsusk",
           title: "Linux",
           url: "http:\/\/localhost:1313\/post\/linux\/",
-          description: "\rLinux的使用\r重设WSL中Linux系统用户的密码\r以安装ubuntu22.04版本为例\n在windows终端中输入ubuntu2204 config --default-user root 将wsl登录用户切换为root\n在wsl系统中输入passwd 用户名 修改用户密码\n再回到windows终端中输入ubuntu2204 config --default-user yukino 将wsl登录用户切换为原用户\n或 管理员身份运行ps 输入wsl.exe --user root\n再输入passwd root 修改 root 密码\n重置与用户密码与重置root密码类似\n系统内置命令 …",
+          description: "\rLinux的使用\r如何重设WSL中Linux系统用户的密码\r以安装ubuntu22.04版本为例\n在windows终端中输入ubuntu2204 config --default-user root 将wsl登录用户切换为root\n在wsl系统中输入passwd 用户名 修改用户密码\n再回到windows终端中输入ubuntu2204 config --default-user yukino 将wsl登录用户切换为原用户\n或 管理员身份运行ps 输入wsl.exe --user root\n再输入passwd root 修改 root 密码\n重置与用户密码与重置root密码类似\n系统内置命令 …",
           cover: "http:\/\/localhost:1313\/images\/banner1.webp",
         };
       </script><script src="/js/insert_highlight.js" data-pjax ></script><script src="/js/tabs.js" data-pjax defer></script><script type="module" data-pjax>const PhotoSwipeLightbox = (await safeImport("https:\/\/npm.webcache.cn\/photoswipe@5.4.4\/dist\/photoswipe-lightbox.esm.min.js", "sha384-DiL6M\/gG\u002bwmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF\/N6lrZi\/")).default;const initPswp = (gallery, children) => {

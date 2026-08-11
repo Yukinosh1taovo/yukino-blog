@@ -7,7 +7,7 @@ title = 'Linux'
 
 # Linux的使用
 
-## 重设WSL中Linux系统用户的密码
+## 如何重设WSL中Linux系统用户的密码
 
 以安装ubuntu22.04版本为例
 
@@ -17,29 +17,23 @@ title = 'Linux'
 
 再回到windows终端中输入`ubuntu2204 config --default-user yukino` 将wsl登录用户切换为原用户
 
-
-
 或 管理员身份运行ps 输入`wsl.exe --user root`
 
  再输入`passwd root` 修改 root 密码
 
 重置与用户密码与重置root密码类似
 
-
-
-
-
 ## 系统内置命令
 
+`ls`查看当前目录
 
+`pwd`查看当前工作目录路径
 
+`clear`清屏
 
+`cp` 复制文件
 
-
-
-
-
-
+`rm` 删除文件
 
 
 
@@ -69,7 +63,11 @@ title = 'Linux'
 
 ## Docker
 
-查看当前**正在运行**的容器 `docker ps`  (加上-a 选项查看所有容器)
+### 容器相关
+
+---
+
+查看当前**正在运行**的容器 `docker ps -a`  (加上-a 选项查看所有容器)
 
 停止容器 `docker stop <容器id或名称>`
 
@@ -81,17 +79,20 @@ title = 'Linux'
 
 暴力清空：强行删除本地【所有】容器（无论是否在运行） `docker rm -f $(docker ps -aq)`
 
+修改docker-compose文件后重启容器 `docker compose up -d`
 
+重启容器命令  `docker compose -f astrbot.yml restart`  (-f 用于指定文件 适用于命名非docker-compose.yml的docker配置文件)
+
+---
+
+### 镜像相关
 
 只执行 `docker rm` 只是删除了**运行实例（容器）**，下载下来的**基础镜像**（Image）依然会占用你的 WSL 虚拟硬盘空间
 
-
+---
 
 查看镜像列表和id `docker images`
 
 彻底删除镜像 `docker rmi <镜像ID>`
 
-
-
-
-
+---

@@ -12,12 +12,57 @@
     
     <copyright>All articles on this blog are licensed under the BY-NC-SA license agreement unless otherwise stated. Please indicate the source when reprinting!</copyright>
     
-    <lastBuildDate>Thu, 07 May 2026 15:06:44 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 11 Aug 2026 14:11:52 +0800</lastBuildDate>
     
     
     <atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss&#43;xml" />
     
 
+    
+    
+
+    <item>
+      <title>Tailscale Derp</title>
+      <link>http://localhost:1313/post/tailscale-derp/</link>
+      <pubDate>Tue, 11 Aug 2026 14:11:52 &#43;0800</pubDate>
+      <author>xxx@example.com (Tairitsusk)</author>
+      <guid>http://localhost:1313/post/tailscale-derp/</guid>
+      <description>
+        <![CDATA[<h1>Tailscale Derp</h1><p>Author: Tairitsusk(xxx@example.com)</p>
+        
+          <h1 id="自建-tailscale-derp-节点不完全指北">
+<a class="header-anchor" href="#%e8%87%aa%e5%bb%ba-tailscale-derp-%e8%8a%82%e7%82%b9%e4%b8%8d%e5%ae%8c%e5%85%a8%e6%8c%87%e5%8c%97"></a>
+自建 Tailscale DERP 节点不完全指北
+</h1><p>Tsk家里部署了一台私有服务器，负责相册备份。平时在局域网内用得很舒服，但一直没考虑过外网异地访问的问题。 最近了解到利用Tailscale组建虚拟局域网的方式来进行外网访问 安全性高还方便 正好还有一台学生优惠白嫖的2c2g阿里云服务器一直吃灰(懒狗懒得用bushi</p>
+<p><strong>Tailscale</strong> 优先走 P2P 直连，网络好的时候能跑满家里的上行带宽；可一旦P2P打洞失败，流量就会自动切到官方部署在海外的 DERP 中转节点，延迟 200ms+，速度显然无法接受。诶？ 正好我能把一台有公网 IP 的云服务器变成<strong>私人专属的 DERP 节点</strong>，大幅降低无法P2P打洞情况下的连接延迟。</p>
+<p>本文记录完整的部署流程，包括如何做到&quot;防白嫖&quot;——只允许你自己网络里的设备使用这台中转站。</p>
+<p>本文搭建特点： 无需备案 使用docker容器部署 部署方式简单</p>
+<h2 id="什么是-tailscale">
+<a class="header-anchor" href="#%e4%bb%80%e4%b9%88%e6%98%af-tailscale"></a>
+什么是 Tailscale？
+</h2><p>Tailscale 是一款基于 WireGuard 协议的组网工具，它把&quot;组建虚拟局域网&quot;这件事简化到了极致：在每台设备上安装客户端、登录同一个账号，这些设备就会自动组成一张加密的私有虚拟网络（Mesh VPN），无论它们分散在家庭、公司还是不同的城市。</p>
+<p>它的核心特点可以概括为：</p>
+<ul>
+<li><strong>零配置组网</strong>：不需要公网 IP，也不需要去路由器上做端口转发；</li>
+<li><strong>端到端加密</strong>：设备间的流量基于 WireGuard 加密，数据平面不依赖第三方明文中转；</li>
+<li><strong>跨平台</strong>：Windows、macOS、Linux、Android、iOS 都有客户端，电视盒子也能装；</li>
+<li><strong>个人使用免费</strong>：普通家庭用户基本够用。</li>
+</ul>
+<p>理解 Tailscale 的架构，可以把它分成两个平面：</p>
+<ul>
+<li><strong>控制平面</strong>：由官方协调服务器负责设备发现、密钥分发和访问策略下发，它不承载你的业务数据；</li>
+<li><strong>数据平面</strong>：设备之间的数据流量会优先尝试 <strong>P2P 直连</strong>（通过 NAT 打洞建立点对点通道），打洞失败时再经 <strong>DERP 中继服务器</strong>转发。</li>
+</ul>
+<p>DERP 全称是 <em>Designated Encrypted Relay for Packets</em>（数据包指定加密中继），也就是 Tailscale 内置的加密中继节点。问题恰恰出在这里：默认的中继节点部署在海外，对国内用户来说延迟高、速度慢。这正是我们接下来要自建专属 DERP 的原因。</p>
+<h2 id="为什么值得自建-derp">
+<a class="header-anchor" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e5%80%bc%e5%be%97%e8%87%aa%e5%bb%ba-derp"></a>
+为什么值得自建 DERP
+</h2><p>Tailscale 的连接策略是&quot;先直连，失败再中转&quot;：</p>
+        
+        <hr><p>Published on 2026-08-11 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-08-11</p>]]>
+      </description>
+      
+    </item>
     
     
 
@@ -124,8 +169,10 @@ astrbot的配置使用与研究
       <description>
         <![CDATA[<h1>Hugo</h1><p>Author: Tairitsusk(xxx@example.com)</p>
         
-          <p>写作流程命令</p>
-<p><code>hugo new posts/xxx/index.md</code>
+          <h1 id="写作流程命令">
+<a class="header-anchor" href="#%e5%86%99%e4%bd%9c%e6%b5%81%e7%a8%8b%e5%91%bd%e4%bb%a4"></a>
+写作流程命令
+</h1><p><code>hugo new posts/xxx/index.md</code>
 写内容 + 放图片
 <code>hugo server -D</code> 预览
 <code>git add .</code></p>
@@ -158,9 +205,9 @@ astrbot的配置使用与研究
           <h1 id="linux的使用">
 <a class="header-anchor" href="#linux%e7%9a%84%e4%bd%bf%e7%94%a8"></a>
 Linux的使用
-</h1><h2 id="重设wsl中linux系统用户的密码">
-<a class="header-anchor" href="#%e9%87%8d%e8%ae%bewsl%e4%b8%adlinux%e7%b3%bb%e7%bb%9f%e7%94%a8%e6%88%b7%e7%9a%84%e5%af%86%e7%a0%81"></a>
-重设WSL中Linux系统用户的密码
+</h1><h2 id="如何重设wsl中linux系统用户的密码">
+<a class="header-anchor" href="#%e5%a6%82%e4%bd%95%e9%87%8d%e8%ae%bewsl%e4%b8%adlinux%e7%b3%bb%e7%bb%9f%e7%94%a8%e6%88%b7%e7%9a%84%e5%af%86%e7%a0%81"></a>
+如何重设WSL中Linux系统用户的密码
 </h2><p>以安装ubuntu22.04版本为例</p>
 <p>在windows终端中输入<code>ubuntu2204 config --default-user root</code> 将wsl登录用户切换为root</p>
 <p>在wsl系统中输入<code>passwd 用户名</code> 修改用户密码</p>
@@ -171,7 +218,12 @@ Linux的使用
 <h2 id="系统内置命令">
 <a class="header-anchor" href="#%e7%b3%bb%e7%bb%9f%e5%86%85%e7%bd%ae%e5%91%bd%e4%bb%a4"></a>
 系统内置命令
-</h2><h2 id="apt包管理器">
+</h2><p><code>ls</code>查看当前目录</p>
+<p><code>pwd</code>查看当前工作目录路径</p>
+<p><code>clear</code>清屏</p>
+<p><code>cp</code> 复制文件</p>
+<p><code>rm</code> 删除文件</p>
+<h2 id="apt包管理器">
 <a class="header-anchor" href="#apt%e5%8c%85%e7%ae%a1%e7%90%86%e5%99%a8"></a>
 APT包管理器
 </h2><p>更新软件清单 <code>sudo apt update</code></p>
@@ -181,14 +233,6 @@ APT包管理器
 <p>卸载软件（不保留配置文件） <code>sudo apt purge 软件名称</code></p>
 <p>清理不再需要的依赖包 <code>sudo apt autoremove</code></p>
 <p>搜索软件 <code>apt search 关键字</code></p>
-<h2 id="性能监控htop">
-<a class="header-anchor" href="#%e6%80%a7%e8%83%bd%e7%9b%91%e6%8e%a7htop"></a>
-性能监控htop
-</h2><p>输入<code>htop</code>监控性能 按q退出监控</p>
-<h2 id="docker">
-<a class="header-anchor" href="#docker"></a>
-Docker
-</h2><p>查看当前<strong>正在运行</strong>的容器 <code>docker ps</code>  (加上-a 选项查看所有容器)</p>
         
         <hr><p>Published on 2026-04-21 at <a href='http://localhost:1313/'>Tairitsuskの wiki</a>, last modified on 2026-04-21</p>]]>
       </description>

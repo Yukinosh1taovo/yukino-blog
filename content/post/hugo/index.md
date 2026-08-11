@@ -10,7 +10,7 @@ categories = []
 
 +++
 
-写作流程命令
+# 写作流程命令
 
 `hugo new posts/xxx/index.md`
 写内容 + 放图片
@@ -22,13 +22,7 @@ categories = []
 `git push`
 自动 CI 部署上线
 
-
-
 修改archetypes文件夹下的default.md文件 修改使用`hugo new`命令创建新文章的开头模板
-
-
-
-
 
 ## 关于图片
 
