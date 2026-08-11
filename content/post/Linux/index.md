@@ -1,6 +1,6 @@
 +++
 date = '2026-04-21T13:10:19+08:00'
-draft = true
+draft = false
 title = 'Linux'
 
 +++

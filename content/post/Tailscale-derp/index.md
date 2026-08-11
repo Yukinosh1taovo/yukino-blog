@@ -3,7 +3,7 @@
 title = '自建 Tailscale DERP 节点不完全指北'
 
 date = '2026-08-11T14:11:52+08:00'
-draft = true
+draft = false
 
 +++
 
